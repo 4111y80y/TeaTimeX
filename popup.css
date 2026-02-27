@@ -151,6 +151,7 @@ body {
 /* Add Section */
 .add-section {
     display: flex;
+    flex-wrap: wrap;
     gap: 6px;
     padding: 0 16px 10px;
     align-items: center;
@@ -158,6 +159,7 @@ body {
 
 .add-section input {
     flex: 1;
+    min-width: 100px;
     padding: 6px 10px;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
@@ -177,7 +179,7 @@ body {
 }
 
 .btn-add {
-    padding: 6px 12px;
+    padding: 6px 0;
     background: var(--accent);
     color: #fff;
     border: none;
@@ -187,6 +189,8 @@ body {
     cursor: pointer;
     white-space: nowrap;
     transition: background 0.2s;
+    width: 100%;
+    flex-basis: 100%;
 }
 
 .btn-add:hover {

@@ -30,7 +30,7 @@
     if (!userNameDiv) return;
 
     // 如果已经处理过，跳过
-    if (tweetEl.querySelector('.teatimex-icon')) return;
+    if (tweetEl.querySelector('.teatimex-action-icon')) return;
 
     // 获取用户 handle - 使用第二个链接 (即 @handle 链接)
     const profileLinks = Array.from(userNameDiv.querySelectorAll('a[href^="/"]'));
@@ -44,17 +44,7 @@
     const icon = member.icon || '🍵';
     const tooltip = `茶馆成员: ${member.displayName || handle}`;
 
-    // 1. 在显示名称旁注入图标
-    const nameLink = profileLinks[0];
-    if (nameLink && nameLink.parentElement) {
-      const nameIcon = document.createElement('span');
-      nameIcon.className = 'teatimex-icon';
-      nameIcon.textContent = icon;
-      nameIcon.title = tooltip;
-      nameLink.parentElement.insertBefore(nameIcon, nameLink.nextSibling);
-    }
-
-    // 2. 在 Like 按钮旁注入图标
+    // 在 Like 按钮旁注入图标
     injectLikeIcon(tweetEl, icon, tooltip);
   }
 
