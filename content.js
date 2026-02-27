@@ -46,6 +46,9 @@
 
     // 在 Like 按钮旁注入图标
     injectLikeIcon(tweetEl, icon, tooltip);
+
+    // 高亮推文背景
+    tweetEl.classList.add('teatimex-highlight');
   }
 
   // 在 Like 按钮旁注入图标
@@ -133,8 +136,9 @@
           membersMap[m.handle.toLowerCase()] = m;
         });
       }
-      // 清除所有已注入的图标并重新扫描
+      // 清除所有已注入的图标和高亮并重新扫描
       document.querySelectorAll('.teatimex-icon, .teatimex-action-icon').forEach((el) => el.remove());
+      document.querySelectorAll('.teatimex-highlight').forEach((el) => el.classList.remove('teatimex-highlight'));
       scanTimeline();
     }
   });
