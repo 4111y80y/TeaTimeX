@@ -41,19 +41,44 @@
     const member = membersMap[handleLower];
     if (!member) return;
 
-    // 找到显示名称的第一个链接，注入图标到其后
+    const icon = member.icon || '🍵';
+    const tooltip = `茶馆成员: ${member.displayName || handle}`;
+
+    // 1. 在显示名称旁注入图标
     const nameLink = profileLinks[0];
-    if (!nameLink) return;
-
-    const iconSpan = document.createElement('span');
-    iconSpan.className = 'teatimex-icon';
-    iconSpan.textContent = member.icon || '🍵';
-    iconSpan.title = `茶馆成员: ${member.displayName || handle}`;
-
-    // 插入到名称链接后面（与名称同行显示）
-    if (nameLink.parentElement) {
-      nameLink.parentElement.insertBefore(iconSpan, nameLink.nextSibling);
+    if (nameLink && nameLink.parentElement) {
+      const nameIcon = document.createElement('span');
+      nameIcon.className = 'teatimex-icon';
+      nameIcon.textContent = icon;
+      nameIcon.title = tooltip;
+      nameLink.parentElement.insertBefore(nameIcon, nameLink.nextSibling);
     }
+
+    // 2. 在 Like 按钮旁注入图标
+    injectLikeIcon(tweetEl, icon, tooltip);
+  }
+
+  // 在 Like 按钮旁注入图标
+  function injectLikeIcon(tweetEl, icon, tooltip) {
+    const likeBtn = tweetEl.querySelector('[data-testid="like"]') ||
+      tweetEl.querySelector('[data-testid="unlike"]');
+    if (!likeBtn) return;
+
+    // Like 按钮的父容器（pillar div）
+    const likePillar = likeBtn.closest('[role="group"] > div');
+    if (!likePillar) return;
+
+    // 创建图标容器，模仿 action bar pillar 的样式
+    const iconPillar = document.createElement('div');
+    iconPillar.className = 'teatimex-action-icon';
+    iconPillar.title = tooltip;
+
+    const iconInner = document.createElement('span');
+    iconInner.textContent = icon;
+    iconPillar.appendChild(iconInner);
+
+    // 插入到 Like 按钮 pillar 后面
+    likePillar.parentElement.insertBefore(iconPillar, likePillar.nextSibling);
   }
 
   // 从链接中提取 handle
@@ -119,7 +144,7 @@
         });
       }
       // 清除所有已注入的图标并重新扫描
-      document.querySelectorAll('.teatimex-icon').forEach((el) => el.remove());
+      document.querySelectorAll('.teatimex-icon, .teatimex-action-icon').forEach((el) => el.remove());
       scanTimeline();
     }
   });

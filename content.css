@@ -19,6 +19,7 @@
     opacity: 0;
     transform: scale(0.5);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -28,4 +29,31 @@
 .teatimex-icon:hover {
   transform: scale(1.2);
   transition: transform 0.15s ease;
+}
+
+/* Action bar 图标 (Like 按钮旁) */
+.teatimex-action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  cursor: default;
+  animation: teatimex-fadeIn 0.3s ease-in-out;
+}
+
+.teatimex-action-icon span {
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  transition: all 0.15s ease;
+}
+
+.teatimex-action-icon span:hover {
+  background: rgba(29, 155, 240, 0.1);
+  transform: scale(1.15);
 }
