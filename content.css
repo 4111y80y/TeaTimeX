@@ -59,7 +59,9 @@
 }
 
 /* 茶馆成员推文高亮背景 */
-article.teatimex-highlight {
+article.teatimex-highlight,
+article.teatimex-highlight:hover,
+article.teatimex-highlight>div {
   background-color: rgba(34, 197, 94, 0.08) !important;
   border-left: 3px solid rgba(34, 197, 94, 0.5);
 }
