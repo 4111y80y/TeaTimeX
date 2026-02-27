@@ -49,6 +49,17 @@
 
     // 高亮推文背景
     tweetEl.classList.add('teatimex-highlight');
+    // 强制设置内部 div 背景色，防止 X.com hover 覆盖
+    const bgColor = 'rgba(34, 197, 94, 0.08)';
+    const innerDiv = tweetEl.querySelector(':scope > div');
+    if (innerDiv) {
+      innerDiv.style.setProperty('background-color', bgColor, 'important');
+      // 监听 X.com 修改 style 属性
+      const styleObserver = new MutationObserver(() => {
+        innerDiv.style.setProperty('background-color', bgColor, 'important');
+      });
+      styleObserver.observe(innerDiv, { attributes: true, attributeFilter: ['style'] });
+    }
   }
 
   // 在 Like 按钮旁注入图标
