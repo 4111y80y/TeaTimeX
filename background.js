@@ -1,12 +1,12 @@
 /**
- * TeaTimeX Background Service Worker
+ * 喝茶神器 Background Service Worker
  * 插件安装/更新时加载成员名单
  */
 
 // 插件安装或更新时初始化
 chrome.runtime.onInstalled.addListener(async (details) => {
     if (details.reason === 'install' || details.reason === 'update') {
-        console.log(`[TeaTimeX] 插件${details.reason === 'install' ? '已安装' : '已更新'}，正在加载成员名单...`);
+        console.log(`[喝茶神器] 插件${details.reason === 'install' ? '已安装' : '已更新'}，正在加载成员名单...`);
 
         try {
             // 加载内置的 members.json
@@ -40,14 +40,14 @@ chrome.runtime.onInstalled.addListener(async (details) => {
                 });
 
                 await chrome.storage.local.set({ members: merged });
-                console.log(`[TeaTimeX] 已合并更新 ${merged.length} 位成员`);
+                console.log(`[喝茶神器] 已合并更新 ${merged.length} 位成员`);
             } else {
                 // 首次安装：直接写入
                 await chrome.storage.local.set({ members: newMembers });
-                console.log(`[TeaTimeX] 已加载 ${newMembers.length} 位初始成员`);
+                console.log(`[喝茶神器] 已加载 ${newMembers.length} 位初始成员`);
             }
         } catch (error) {
-            console.error('[TeaTimeX] 加载名单失败:', error);
+            console.error('[喝茶神器] 加载名单失败:', error);
             if (details.reason === 'install') {
                 await chrome.storage.local.set({ members: [] });
             }

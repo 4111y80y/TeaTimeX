@@ -1,5 +1,5 @@
 /**
- * TeaTimeX Content Script
+ * 喝茶神器 Content Script
  * 在 X.com 时间线上为特殊用户显示🍵图标
  */
 
@@ -159,7 +159,7 @@
     await loadMembers();
     scanTimeline();
     startObserver();
-    console.log('[TeaTimeX] 已加载，监控中...成员数:', Object.keys(membersMap).length);
+    console.log('[喝茶神器] 已加载，监控中...成员数:', Object.keys(membersMap).length);
   }
 
   // 等待页面就绪
