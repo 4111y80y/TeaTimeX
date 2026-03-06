@@ -409,6 +409,23 @@ body {
     color: var(--text-secondary);
 }
 
+.footer-sep {
+    margin: 0 6px;
+    color: var(--border);
+}
+
+.footer-author {
+    font-size: 10px;
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-author:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
 /* ============ Modal ============ */
 .modal-overlay {
     position: fixed;
