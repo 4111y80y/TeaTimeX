@@ -162,132 +162,146 @@
     }
   });
 
-  // 抓取群聊页面的成员列表
+  // 抓取群聊页面的成员列表（通过拦截 API 响应获取 handle）
   async function scrapeGroupMembers() {
-    const SCROLL_DELAY = 800;
-    const MAX_SCROLL_ATTEMPTS = 50;
-
     function delay(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     try {
-      // 1. 提取群聊名称
+      // 1. 提取群聊名称 - 从页面顶部 header 获取
       let groupName = '';
       const urlMatch = window.location.pathname.match(/\/i\/chat\/(g\d+)/);
       const groupId = urlMatch ? urlMatch[1] : null;
 
+      // 从 DOM 查找群聊名称（大字号 span）
       const allSpans = document.querySelectorAll('span');
       for (const span of allSpans) {
         const style = window.getComputedStyle(span);
         const fontSize = parseInt(style.fontSize);
-        if (fontSize >= 20 && span.textContent.trim().length > 0 && span.textContent.trim().length < 100) {
+        if (fontSize >= 17 && span.textContent.trim().length > 0 && span.textContent.trim().length < 100) {
           const text = span.textContent.trim();
-          if (!['Chat', 'Messages', 'Settings', 'chat info', 'x'].includes(text.toLowerCase())) {
+          if (!['chat', 'messages', 'settings', 'chat info', 'x', 'all members',
+            'search participants', 'add', 'video', 'unmute', 'mute', 'more',
+            'disappearing messages', 'block screenshots', 'group invite link',
+            'view all', 'off', 'on', 'admin'].includes(text.toLowerCase())
+            && !/^\d+ members$/i.test(text)
+            && !/^\d+$/.test(text)) {
             groupName = text;
             break;
           }
         }
       }
 
-      // 2. 点击 "View All"
-      let viewAllClicked = false;
+      // 2. 注入 fetch 拦截器到页面上下文中
+      const capturedMembers = [];
+
+      // 使用 script 标签注入到页面上下文来拦截 fetch
+      const interceptorId = 'teatimex_sync_' + Date.now();
+      window[interceptorId] = capturedMembers;
+
+      const script = document.createElement('script');
+      script.textContent = `
+        (function() {
+          const capturedData = [];
+          const origFetch = window.fetch;
+          window.fetch = async function(...args) {
+            const response = await origFetch.apply(this, args);
+            try {
+              const url = typeof args[0] === 'string' ? args[0] : (args[0] && args[0].url) || '';
+              if (url.includes('/i/api/') || url.includes('graphql')) {
+                const clone = response.clone();
+                clone.json().then(data => {
+                  // 递归搜索 screen_name 字段
+                  function findUsers(obj, depth) {
+                    if (!obj || depth > 10) return;
+                    if (typeof obj !== 'object') return;
+                    if (obj.screen_name && typeof obj.screen_name === 'string') {
+                      capturedData.push({
+                        handle: obj.screen_name,
+                        displayName: obj.name || obj.screen_name
+                      });
+                    }
+                    if (Array.isArray(obj)) {
+                      obj.forEach(item => findUsers(item, depth + 1));
+                    } else {
+                      Object.values(obj).forEach(val => findUsers(val, depth + 1));
+                    }
+                  }
+                  findUsers(data, 0);
+                  // 存到 window 供 content script 读取
+                  window['${interceptorId}'] = capturedData;
+                }).catch(() => {});
+              }
+            } catch(e) {}
+            return response;
+          };
+
+          // 同样拦截 XMLHttpRequest
+          const origXhrOpen = XMLHttpRequest.prototype.open;
+          const origXhrSend = XMLHttpRequest.prototype.send;
+          XMLHttpRequest.prototype.open = function(method, url) {
+            this._teatimexUrl = url;
+            return origXhrOpen.apply(this, arguments);
+          };
+          XMLHttpRequest.prototype.send = function() {
+            this.addEventListener('load', function() {
+              try {
+                const url = this._teatimexUrl || '';
+                if (url.includes('/i/api/') || url.includes('graphql')) {
+                  const data = JSON.parse(this.responseText);
+                  function findUsers(obj, depth) {
+                    if (!obj || depth > 10) return;
+                    if (typeof obj !== 'object') return;
+                    if (obj.screen_name && typeof obj.screen_name === 'string') {
+                      capturedData.push({
+                        handle: obj.screen_name,
+                        displayName: obj.name || obj.screen_name
+                      });
+                    }
+                    if (Array.isArray(obj)) {
+                      obj.forEach(item => findUsers(item, depth + 1));
+                    } else {
+                      Object.values(obj).forEach(val => findUsers(val, depth + 1));
+                    }
+                  }
+                  findUsers(data, 0);
+                  window['${interceptorId}'] = capturedData;
+                }
+              } catch(e) {}
+            });
+            return origXhrSend.apply(this, arguments);
+          };
+        })();
+      `;
+      document.documentElement.appendChild(script);
+      script.remove();
+
+      // 3. 等待页面初始 API 加载
+      await delay(2000);
+
+      // 4. 点击 "View All" 触发成员列表加载
       const allClickable = document.querySelectorAll('span, a, button, div[role="button"]');
       for (const el of allClickable) {
         const text = el.textContent.trim().toLowerCase();
-        if (text === 'view all' || text === '查看全部' || text === 'view all members') {
+        if (text === 'view all' || text === '查看全部') {
           el.click();
-          viewAllClicked = true;
           break;
         }
       }
 
-      if (!viewAllClicked) {
-        for (const el of allClickable) {
-          const text = el.textContent.trim();
-          if (text.includes('Members') || text.includes('成员')) {
-            const parent = el.closest('div');
-            if (parent) {
-              const viewAll = parent.querySelector('span[role="button"], a, button');
-              if (viewAll && viewAll !== el) {
-                viewAll.click();
-                viewAllClicked = true;
-                break;
-              }
-            }
-          }
-        }
-      }
+      // 5. 等待成员列表 API 响应
+      await delay(4000);
 
-      await delay(3000);
-
-      // 3. 抓取成员列表
-      const members = new Map();
-
-      function collectVisibleMembers() {
-        // 方法1: 查找 @handle 文本
-        const allElements = document.querySelectorAll('*');
-        for (const el of allElements) {
-          if (el.children.length === 0) {
-            const text = el.textContent.trim();
-            if (text.startsWith('@') && text.length > 1 && text.length < 50 && !text.includes(' ')) {
-              const handle = text.substring(1);
-              if (!members.has(handle.toLowerCase())) {
-                let displayName = handle;
-                const container = el.closest('div[class]');
-                if (container) {
-                  const spans = container.querySelectorAll('span');
-                  for (const span of spans) {
-                    const spanText = span.textContent.trim();
-                    if (spanText && !spanText.startsWith('@') && spanText.length > 0 && spanText.length < 80) {
-                      if (span.children.length === 0 || (span.children.length === 1 && span.querySelector('img'))) {
-                        displayName = spanText;
-                        break;
-                      }
-                    }
-                  }
-                }
-                members.set(handle.toLowerCase(), { handle, displayName });
-              }
-            }
-          }
-        }
-
-        // 方法2: 查找个人资料链接
-        const profileLinks = document.querySelectorAll('a[href^="/"]');
-        for (const link of profileLinks) {
-          const href = link.getAttribute('href');
-          if (!href) continue;
-          const match = href.match(/^\/([A-Za-z0-9_]+)\/?$/);
-          if (match && match[1]) {
-            const handle = match[1];
-            const skipList = ['home', 'explore', 'notifications', 'messages', 'settings', 'search', 'compose', 'i', 'tos', 'privacy'];
-            if (skipList.includes(handle.toLowerCase())) continue;
-            if (!members.has(handle.toLowerCase())) {
-              const displayName = link.textContent.trim() || handle;
-              members.set(handle.toLowerCase(), { handle, displayName: displayName.length < 80 ? displayName : handle });
-            }
-          }
-        }
-      }
-
-      collectVisibleMembers();
-
-      // 4. 滚动收集更多成员
-      let scrollContainer = null;
+      // 6. 滚动成员列表加载更多
       const allDivs = document.querySelectorAll('div');
+      let scrollContainer = null;
       for (const div of allDivs) {
         const style = window.getComputedStyle(div);
         if ((style.overflowY === 'auto' || style.overflowY === 'scroll') && div.scrollHeight > div.clientHeight + 50) {
-          const handles = div.querySelectorAll('*');
-          let hasHandle = false;
-          for (const h of handles) {
-            if (h.children.length === 0 && h.textContent.trim().startsWith('@')) {
-              hasHandle = true;
-              break;
-            }
-          }
-          if (hasHandle) {
+          // 检查是否在模态框内
+          const rect = div.getBoundingClientRect();
+          if (rect.width > 200 && rect.width < 600 && rect.height > 200) {
             scrollContainer = div;
             break;
           }
@@ -295,23 +309,47 @@
       }
 
       if (scrollContainer) {
-        let prevCount = members.size;
-        let noChangeCount = 0;
-
-        for (let i = 0; i < MAX_SCROLL_ATTEMPTS; i++) {
-          scrollContainer.scrollTop += 300;
-          await delay(SCROLL_DELAY);
-          collectVisibleMembers();
-
-          if (members.size === prevCount) {
-            noChangeCount++;
-            if (noChangeCount >= 3) break;
-          } else {
-            noChangeCount = 0;
-            prevCount = members.size;
-          }
+        for (let i = 0; i < 30; i++) {
+          scrollContainer.scrollTop += 400;
+          await delay(600);
         }
       }
+
+      // 7. 再等一会儿让所有 API 都返回
+      await delay(2000);
+
+      // 8. 从拦截的数据中读取结果
+      const readScript = document.createElement('script');
+      readScript.textContent = `
+        document.dispatchEvent(new CustomEvent('teatimex_sync_result', {
+          detail: JSON.stringify(window['${interceptorId}'] || [])
+        }));
+      `;
+
+      const resultPromise = new Promise(resolve => {
+        document.addEventListener('teatimex_sync_result', function handler(e) {
+          document.removeEventListener('teatimex_sync_result', handler);
+          try {
+            resolve(JSON.parse(e.detail));
+          } catch {
+            resolve([]);
+          }
+        });
+      });
+
+      document.documentElement.appendChild(readScript);
+      readScript.remove();
+
+      const apiMembers = await resultPromise;
+
+      // 去重
+      const members = new Map();
+      apiMembers.forEach(m => {
+        const key = m.handle.toLowerCase();
+        if (!members.has(key)) {
+          members.set(key, { handle: m.handle, displayName: m.displayName || m.handle });
+        }
+      });
 
       return {
         success: true,
