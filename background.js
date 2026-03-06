@@ -141,7 +141,6 @@ async function handleSyncGroup(groupId, groupLink) {
     if (!infoUrl.endsWith('/info')) {
         infoUrl = infoUrl.replace(/\/$/, '') + '/info';
     }
-    // 如果是非 info 链接（如 /members），转换为 info
     infoUrl = infoUrl.replace(/\/members$/, '/info');
 
     let tab = null;
@@ -166,10 +165,10 @@ async function handleSyncGroup(groupId, groupLink) {
         // 额外等待让 SPA 渲染完成
         await new Promise(resolve => setTimeout(resolve, 3000));
 
-        // 注入同步脚本
+        // 注入同步脚本（使用内联函数避免文件权限问题）
         const results = await chrome.scripting.executeScript({
             target: { tabId: tab.id },
-            files: ['sync.js'],
+            func: syncGroupPageScript,
         });
 
         // 关闭 tab
@@ -183,10 +182,178 @@ async function handleSyncGroup(groupId, groupLink) {
         return { success: false, error: '同步脚本未返回结果' };
 
     } catch (error) {
-        // 确保清理 tab
         if (tab) {
             try { await chrome.tabs.remove(tab.id); } catch (e) { /* ignore */ }
         }
         return { success: false, error: error.message || '同步失败' };
+    }
+}
+
+// 注入到群聊页面的同步脚本（内联函数）
+async function syncGroupPageScript() {
+    const SCROLL_DELAY = 800;
+    const MAX_SCROLL_ATTEMPTS = 50;
+
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    try {
+        await delay(2000);
+
+        // 1. 提取群聊名称
+        let groupName = '';
+        const urlMatch = window.location.pathname.match(/\/i\/chat\/(g\d+)/);
+        const groupId = urlMatch ? urlMatch[1] : null;
+
+        const allSpans = document.querySelectorAll('span');
+        for (const span of allSpans) {
+            const style = window.getComputedStyle(span);
+            const fontSize = parseInt(style.fontSize);
+            if (fontSize >= 20 && span.textContent.trim().length > 0 && span.textContent.trim().length < 100) {
+                const text = span.textContent.trim();
+                if (!['Chat', 'Messages', 'Settings', 'chat info'].includes(text.toLowerCase()) && text !== 'X') {
+                    groupName = text;
+                    break;
+                }
+            }
+        }
+
+        // 2. 点击 "View All"
+        let viewAllClicked = false;
+        const allClickable = document.querySelectorAll('span, a, button, div[role="button"]');
+        for (const el of allClickable) {
+            const text = el.textContent.trim().toLowerCase();
+            if (text === 'view all' || text === '查看全部' || text === 'view all members') {
+                el.click();
+                viewAllClicked = true;
+                break;
+            }
+        }
+
+        if (!viewAllClicked) {
+            for (const el of allClickable) {
+                const text = el.textContent.trim();
+                if (text.includes('Members') || text.includes('成员')) {
+                    const parent = el.closest('div');
+                    if (parent) {
+                        const viewAll = parent.querySelector('span[role="button"], a, button');
+                        if (viewAll && viewAll !== el) {
+                            viewAll.click();
+                            viewAllClicked = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        await delay(2000);
+
+        // 3. 抓取成员列表
+        const members = new Map();
+
+        async function collectVisibleMembers() {
+            // 方法1: 查找 @handle 文本
+            const allElements = document.querySelectorAll('*');
+            for (const el of allElements) {
+                if (el.children.length === 0) {
+                    const text = el.textContent.trim();
+                    if (text.startsWith('@') && text.length > 1 && text.length < 50 && !text.includes(' ')) {
+                        const handle = text.substring(1);
+                        if (!members.has(handle.toLowerCase())) {
+                            let displayName = handle;
+                            const container = el.closest('div[class]');
+                            if (container) {
+                                const spans = container.querySelectorAll('span');
+                                for (const span of spans) {
+                                    const spanText = span.textContent.trim();
+                                    if (spanText && !spanText.startsWith('@') && spanText.length > 0 && spanText.length < 80) {
+                                        if (span.children.length === 0 || (span.children.length === 1 && span.querySelector('img'))) {
+                                            displayName = spanText;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            members.set(handle.toLowerCase(), { handle, displayName });
+                        }
+                    }
+                }
+            }
+
+            // 方法2: 查找个人资料链接
+            const profileLinks = document.querySelectorAll('a[href^="/"]');
+            for (const link of profileLinks) {
+                const href = link.getAttribute('href');
+                if (!href) continue;
+                const match = href.match(/^\/([A-Za-z0-9_]+)\/?$/);
+                if (match && match[1]) {
+                    const handle = match[1];
+                    const skipList = ['home', 'explore', 'notifications', 'messages', 'settings', 'search', 'compose', 'i', 'tos', 'privacy'];
+                    if (skipList.includes(handle.toLowerCase())) continue;
+                    if (!members.has(handle.toLowerCase())) {
+                        const displayName = link.textContent.trim() || handle;
+                        members.set(handle.toLowerCase(), { handle, displayName: displayName.length < 80 ? displayName : handle });
+                    }
+                }
+            }
+        }
+
+        await collectVisibleMembers();
+
+        // 4. 滚动收集更多成员
+        let scrollContainer = null;
+        const allDivs = document.querySelectorAll('div');
+        for (const div of allDivs) {
+            const style = window.getComputedStyle(div);
+            if ((style.overflowY === 'auto' || style.overflowY === 'scroll') && div.scrollHeight > div.clientHeight + 50) {
+                const handles = div.querySelectorAll('*');
+                let hasHandle = false;
+                for (const h of handles) {
+                    if (h.children.length === 0 && h.textContent.trim().startsWith('@')) {
+                        hasHandle = true;
+                        break;
+                    }
+                }
+                if (hasHandle) {
+                    scrollContainer = div;
+                    break;
+                }
+            }
+        }
+
+        if (scrollContainer) {
+            let prevCount = members.size;
+            let noChangeCount = 0;
+
+            for (let i = 0; i < MAX_SCROLL_ATTEMPTS; i++) {
+                scrollContainer.scrollTop += 300;
+                await delay(SCROLL_DELAY);
+                await collectVisibleMembers();
+
+                if (members.size === prevCount) {
+                    noChangeCount++;
+                    if (noChangeCount >= 3) break;
+                } else {
+                    noChangeCount = 0;
+                    prevCount = members.size;
+                }
+            }
+        }
+
+        return {
+            success: true,
+            groupName: groupName,
+            groupId: groupId,
+            members: Array.from(members.values()),
+            memberCount: members.size,
+        };
+
+    } catch (error) {
+        return {
+            success: false,
+            error: error.message,
+        };
     }
 }
