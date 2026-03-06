@@ -31,29 +31,31 @@
   transition: transform 0.15s ease;
 }
 
-/* Action bar 图标 (Like 按钮旁) */
+/* Action bar 多群聊图标容器 (Like 按钮旁) */
 .teatimex-action-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 2px;
   padding: 0 4px;
   cursor: default;
   animation: teatimex-fadeIn 0.3s ease-in-out;
 }
 
-.teatimex-action-icon span {
-  font-size: 16px;
+/* 单个群聊图标 badge */
+.teatimex-group-badge {
+  font-size: 15px;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   transition: all 0.15s ease;
 }
 
-.teatimex-action-icon span:hover {
+.teatimex-group-badge:hover {
   background: rgba(29, 155, 240, 0.1);
   transform: scale(1.15);
 }

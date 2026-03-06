@@ -1,26 +1,37 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>喝茶神器</title>
   <link rel="stylesheet" href="popup.css">
 </head>
+
 <body>
   <div class="container">
-    <!-- 头部 -->
+    <!-- 头部 - 动态显示当前群聊名称 -->
     <header class="header">
       <div class="header-title">
-        <span class="header-icon">🍵</span>
-        <h1>喝茶神器</h1>
+        <span class="header-icon" id="headerIcon">🍵</span>
+        <h1 id="headerName">喝茶神器</h1>
       </div>
-      <p class="header-subtitle">❤️爱的茶馆❤️ 成员标记</p>
+      <p class="header-subtitle" id="headerSubtitle">请选择或创建群聊</p>
     </header>
+
+    <!-- 群聊 Tab 栏 -->
+    <div class="group-tabs-bar">
+      <div class="group-tabs" id="groupTabs">
+        <!-- 动态生成 -->
+      </div>
+      <button class="btn-new-group" id="btnNewGroup" title="创建新群聊">＋</button>
+    </div>
 
     <!-- 统计信息 -->
     <div class="stats-bar">
       <span class="stats-count" id="memberCount">0 位成员</span>
       <div class="stats-actions">
+        <button class="btn-icon" id="btnEditGroup" title="编辑群聊">⚙️</button>
         <button class="btn-icon" id="btnImport" title="导入名单">📥</button>
         <button class="btn-icon" id="btnExport" title="导出名单">📤</button>
       </div>
@@ -35,7 +46,7 @@
     <div class="add-section">
       <input type="text" id="addHandle" placeholder="输入 handle (不含@)" autocomplete="off">
       <input type="text" id="addName" placeholder="显示名称 (可选)" autocomplete="off">
-      <button class="btn-add" id="btnAdd">+ 添加</button>
+      <button class="btn-add" id="btnAdd">+ 添加成员</button>
     </div>
 
     <!-- 用户列表 -->
@@ -45,25 +56,46 @@
 
     <!-- 底部 -->
     <footer class="footer">
-      <a href="https://x.com/i/chat/g2016856146381000833/info" target="_blank" class="footer-link">🔗 群聊链接</a>
-      <span class="footer-ver">v1.0.0</span>
+      <a href="#" id="footerLink" target="_blank" class="footer-link">🔗 群聊链接</a>
+      <span class="footer-ver">v2.0.0</span>
     </footer>
   </div>
 
   <!-- 隐藏的文件输入 -->
   <input type="file" id="fileInput" accept=".json" style="display:none">
 
-  <!-- Emoji 选择器弹窗 -->
-  <div class="emoji-picker-overlay" id="emojiOverlay" style="display:none">
-    <div class="emoji-picker">
-      <div class="emoji-picker-header">
-        <span>选择图标</span>
-        <button class="btn-close" id="btnCloseEmoji">✕</button>
+  <!-- 群聊设置弹窗 -->
+  <div class="modal-overlay" id="groupModal" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <span id="modalTitle">新建群聊</span>
+        <button class="btn-close" id="btnCloseModal">✕</button>
       </div>
-      <div class="emoji-grid" id="emojiGrid"></div>
+      <div class="modal-body">
+        <label>群聊名称</label>
+        <input type="text" id="groupName" placeholder="例如：❤️爱的茶馆🍵❤️" autocomplete="off">
+        <label>群聊链接</label>
+        <input type="text" id="groupLink" placeholder="https://x.com/i/chat/..." autocomplete="off">
+        <label>选择 Logo</label>
+        <div class="logo-preview">
+          <span id="logoPreview" class="logo-preview-icon">🍵</span>
+          <span class="logo-preview-hint">点击下方图标选择</span>
+        </div>
+        <div class="logo-grid" id="logoGrid">
+          <!-- 动态生成 -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-danger" id="btnDeleteGroup" style="display:none">删除群聊</button>
+        <div class="modal-footer-right">
+          <button class="btn-cancel" id="btnCancelModal">取消</button>
+          <button class="btn-save" id="btnSaveGroup">保存</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <script src="popup.js"></script>
 </body>
+
 </html>

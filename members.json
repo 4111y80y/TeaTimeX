@@ -1,407 +1,336 @@
-[
-    {
-        "handle": "4111y80y",
-        "displayName": "Adair Lee",
-        "icon": "🍵"
-    },
-    {
-        "handle": "chieh_zh",
-        "displayName": "CHIEH",
-        "icon": "🍵"
-    },
-    {
-        "handle": "techwongcrypto",
-        "displayName": "TechWong",
-        "icon": "🍵"
-    },
-    {
-        "handle": "duanmeihua",
-        "displayName": "duanmeihua",
-        "icon": "🍵"
-    },
-    {
-        "handle": "m3g_cn",
-        "displayName": "CooL神",
-        "icon": "🍵"
-    },
-    {
-        "handle": "vvwah",
-        "displayName": "御风",
-        "icon": "🍵"
-    },
-    {
-        "handle": "xiaokooeye",
-        "displayName": "Xiao Yang",
-        "icon": "🍵"
-    },
-    {
-        "handle": "moneybeibeihong",
-        "displayName": "MoneyBeiBeiHong",
-        "icon": "🍵"
-    },
-    {
-        "handle": "leisureonx",
-        "displayName": "LeisureOnX",
-        "icon": "🍵"
-    },
-    {
-        "handle": "taomishui",
-        "displayName": "Rice water",
-        "icon": "🍵"
-    },
-    {
-        "handle": "nancyshanghai",
-        "displayName": "Nancy",
-        "icon": "🍵"
-    },
-    {
-        "handle": "bradnobels",
-        "displayName": "烤猪猪",
-        "icon": "🍵"
-    },
-    {
-        "handle": "yydsgzh888",
-        "displayName": "加密军师（重启版）",
-        "icon": "🍵"
-    },
-    {
-        "handle": "realdanielchao",
-        "displayName": "Daniel Chao",
-        "icon": "🍵"
-    },
-    {
-        "handle": "cyberlifecycle",
-        "displayName": "Cyber人生（持续互关）",
-        "icon": "🍵"
-    },
-    {
-        "handle": "sii4bz",
-        "displayName": "王郡",
-        "icon": "🍵"
-    },
-    {
-        "handle": "bitcoin2033",
-        "displayName": "币币兔",
-        "icon": "🍵"
-    },
-    {
-        "handle": "etudecn",
-        "displayName": "淘沙者(TheSandPicker)",
-        "icon": "🍵"
-    },
-    {
-        "handle": "sz_darkwalker",
-        "displayName": "Darkwalker 🖤✨",
-        "icon": "🍵"
-    },
-    {
-        "handle": "pankaj42642621",
-        "displayName": "蓝兮",
-        "icon": "🍵"
-    },
-    {
-        "handle": "hb65014543",
-        "displayName": "HB",
-        "icon": "🍵"
-    },
-    {
-        "handle": "frombabyai2s",
-        "displayName": "始于baby | AI Tinker",
-        "icon": "🍵"
-    },
-    {
-        "handle": "mangochen9",
-        "displayName": "微醺的小猫",
-        "icon": "🍵"
-    },
-    {
-        "handle": "stevehotspots",
-        "displayName": "Steve机械飞升",
-        "icon": "🍵"
-    },
-    {
-        "handle": "brucecheng8529",
-        "displayName": "Overseas",
-        "icon": "🍵"
-    },
-    {
-        "handle": "som22612856",
-        "displayName": "老馬 🐧蓝v互关🙇‍♂️",
-        "icon": "🍵"
-    },
-    {
-        "handle": "gracexm2010",
-        "displayName": "realgrace",
-        "icon": "🍵"
-    },
-    {
-        "handle": "alexandre_lee00",
-        "displayName": "alexandre",
-        "icon": "🍵"
-    },
-    {
-        "handle": "_xiuluoshen",
-        "displayName": "Mr.♠️",
-        "icon": "🍵"
-    },
-    {
-        "handle": "xqt1688",
-        "displayName": "江南雨💦狙击手",
-        "icon": "🍵"
-    },
-    {
-        "handle": "cxpitter4",
-        "displayName": "cryptogeek",
-        "icon": "🍵"
-    },
-    {
-        "handle": "cryptodalan",
-        "displayName": "大蓝",
-        "icon": "🍵"
-    },
-    {
-        "handle": "eric092982",
-        "displayName": "Eric",
-        "icon": "🍵"
-    },
-    {
-        "handle": "liwang48429057",
-        "displayName": "父子相會",
-        "icon": "🍵"
-    },
-    {
-        "handle": "sanyecaoya",
-        "displayName": "书墨醇香",
-        "icon": "🍵"
-    },
-    {
-        "handle": "facaishu6",
-        "displayName": "FACAISHU",
-        "icon": "🍵"
-    },
-    {
-        "handle": "laowang_speaks",
-        "displayName": "老王吃瓜日记",
-        "icon": "🍵"
-    },
-    {
-        "handle": "fuying8988",
-        "displayName": "颜汐💕",
-        "icon": "🍵"
-    },
-    {
-        "handle": "suanminnow",
-        "displayName": "酸菜鱼Little 🐟",
-        "icon": "🍵"
-    },
-    {
-        "handle": "demonyins",
-        "displayName": "demonyins",
-        "icon": "🍵"
-    },
-    {
-        "handle": "mn04432875",
-        "displayName": "一路同行 | 健康笔记",
-        "icon": "🍵"
-    },
-    {
-        "handle": "ooooofreely",
-        "displayName": "Rocky",
-        "icon": "🍵"
-    },
-    {
-        "handle": "pikaray168",
-        "displayName": "皮卡瑞",
-        "icon": "🍵"
-    },
-    {
-        "handle": "erxiao72777",
-        "displayName": "小鱼儿🐟",
-        "icon": "🍵"
-    },
-    {
-        "handle": "oldman79300",
-        "displayName": "Old Man",
-        "icon": "🍵"
-    },
-    {
-        "handle": "enlighss",
-        "displayName": "拾光遇趣",
-        "icon": "🍵"
-    },
-    {
-        "handle": "davidzhulife",
-        "displayName": "Davidzhu",
-        "icon": "🍵"
-    },
-    {
-        "handle": "alzm0519",
-        "displayName": "ALZM",
-        "icon": "🍵"
-    },
-    {
-        "handle": "z3wew",
-        "displayName": "御姐100%💕",
-        "icon": "🍵"
-    },
-    {
-        "handle": "yunxiao85",
-        "displayName": "Yunxiao云霄",
-        "icon": "🍵"
-    },
-    {
-        "handle": "dianzishuwu",
-        "displayName": "万卷书屋",
-        "icon": "🍵"
-    },
-    {
-        "handle": "muhanmode123",
-        "displayName": "马红梅（X上最性感的人）",
-        "icon": "🍵"
-    },
-    {
-        "handle": "hzmjayyy",
-        "displayName": "癌症靶向前沿",
-        "icon": "🍵"
-    },
-    {
-        "handle": "langlang000000",
-        "displayName": "朗朗.Luffy",
-        "icon": "🍵"
-    },
-    {
-        "handle": "chatgdp50",
-        "displayName": "chatX",
-        "icon": "🍵"
-    },
-    {
-        "handle": "ym_alphanotes",
-        "displayName": "玉米_AlphaNotes",
-        "icon": "🍵"
-    },
-    {
-        "handle": "xzxt88",
-        "displayName": "Meme狙击手小鹿🦌",
-        "icon": "🍵"
-    },
-    {
-        "handle": "birdtechvision",
-        "displayName": "🐦萌鸟视界-BirdVision",
-        "icon": "🍵"
-    },
-    {
-        "handle": "lzhou22029",
-        "displayName": "南归",
-        "icon": "🍵"
-    },
-    {
-        "handle": "its_lvann",
-        "displayName": "YaO LvAn",
-        "icon": "🍵"
-    },
-    {
-        "handle": "wayfarer0888",
-        "displayName": "行止人间/Wayfarer Notes",
-        "icon": "🍵"
-    },
-    {
-        "handle": "afm_web3",
-        "displayName": "链上新物种｜聊资本，也聊人",
-        "icon": "🍵"
-    },
-    {
-        "handle": "cyan_aesthetics",
-        "displayName": "Cyan | AI Aesthetics 🩵",
-        "icon": "🍵"
-    },
-    {
-        "handle": "happy20250912",
-        "displayName": "BodhiAlpha",
-        "icon": "🍵"
-    },
-    {
-        "handle": "purehongkonger",
-        "displayName": "Kumi 🐰✨💫",
-        "icon": "🍵"
-    },
-    {
-        "handle": "white_dec12",
-        "displayName": "White",
-        "icon": "🍵"
-    },
-    {
-        "handle": "dxs1783",
-        "displayName": "分享使者❤️",
-        "icon": "🍵"
-    },
-    {
-        "handle": "qiqi3971",
-        "displayName": "Qiqi｜淇淇姐 🐶",
-        "icon": "🍵"
-    },
-    {
-        "handle": "yunbiyun",
-        "displayName": "云比云",
-        "icon": "🍵"
-    },
-    {
-        "handle": "tim8nbm",
-        "displayName": "TimTimmy",
-        "icon": "🍵"
-    },
-    {
-        "handle": "henryinvestx",
-        "displayName": "Henry 鸿锐",
-        "icon": "🍵"
-    },
-    {
-        "handle": "swq454492",
-        "displayName": "舒晚秋",
-        "icon": "🍵"
-    },
-    {
-        "handle": "wenwenflipped",
-        "displayName": "wenwen",
-        "icon": "🍵"
-    },
-    {
-        "handle": "yuying9ii",
-        "displayName": "分享二小姐💔",
-        "icon": "🍵"
-    },
-    {
-        "handle": "cryptogeneral8",
-        "displayName": "李云龙",
-        "icon": "🍵"
-    },
-    {
-        "handle": "nongfu_finn",
-        "displayName": "潜龙在渊",
-        "icon": "🍵"
-    },
-    {
-        "handle": "wsjqwhw2023",
-        "displayName": "老枪",
-        "icon": "🍵"
-    },
-    {
-        "handle": "b0na5i27il58885",
-        "displayName": "杨雪莹",
-        "icon": "🍵"
-    },
-    {
-        "handle": "stellakjbk",
-        "displayName": "九尾狐-FoxFairy🦊",
-        "icon": "🍵"
-    },
-    {
-        "handle": "lian_doctor000",
-        "displayName": "@链医生000",
-        "icon": "🍵"
-    },
-    {
-        "handle": "tuyouair",
-        "displayName": "大言炎炎",
-        "icon": "🍵"
-    }
-]
+{
+    "groups": [
+        {
+            "id": "g2016856146381000833",
+            "name": "❤️爱的茶馆🍵❤️",
+            "link": "https://x.com/i/chat/g2016856146381000833/info",
+            "icon": "🍵",
+            "members": [
+                {
+                    "handle": "4111y80y",
+                    "displayName": "Adair Lee"
+                },
+                {
+                    "handle": "chieh_zh",
+                    "displayName": "CHIEH"
+                },
+                {
+                    "handle": "techwongcrypto",
+                    "displayName": "TechWong"
+                },
+                {
+                    "handle": "duanmeihua",
+                    "displayName": "duanmeihua"
+                },
+                {
+                    "handle": "m3g_cn",
+                    "displayName": "CooL神"
+                },
+                {
+                    "handle": "vvwah",
+                    "displayName": "御风"
+                },
+                {
+                    "handle": "xiaokooeye",
+                    "displayName": "Xiao Yang"
+                },
+                {
+                    "handle": "moneybeibeihong",
+                    "displayName": "MoneyBeiBeiHong"
+                },
+                {
+                    "handle": "leisureonx",
+                    "displayName": "LeisureOnX"
+                },
+                {
+                    "handle": "taomishui",
+                    "displayName": "Rice water"
+                },
+                {
+                    "handle": "nancyshanghai",
+                    "displayName": "Nancy"
+                },
+                {
+                    "handle": "bradnobels",
+                    "displayName": "烤猪猪"
+                },
+                {
+                    "handle": "yydsgzh888",
+                    "displayName": "加密军师（重启版）"
+                },
+                {
+                    "handle": "realdanielchao",
+                    "displayName": "Daniel Chao"
+                },
+                {
+                    "handle": "cyberlifecycle",
+                    "displayName": "Cyber人生（持续互关）"
+                },
+                {
+                    "handle": "sii4bz",
+                    "displayName": "王郡"
+                },
+                {
+                    "handle": "bitcoin2033",
+                    "displayName": "币币兔"
+                },
+                {
+                    "handle": "etudecn",
+                    "displayName": "淘沙者(TheSandPicker)"
+                },
+                {
+                    "handle": "sz_darkwalker",
+                    "displayName": "Darkwalker 🖤✨"
+                },
+                {
+                    "handle": "pankaj42642621",
+                    "displayName": "蓝兮"
+                },
+                {
+                    "handle": "hb65014543",
+                    "displayName": "HB"
+                },
+                {
+                    "handle": "frombabyai2s",
+                    "displayName": "始于baby | AI Tinker"
+                },
+                {
+                    "handle": "mangochen9",
+                    "displayName": "微醺的小猫"
+                },
+                {
+                    "handle": "stevehotspots",
+                    "displayName": "Steve机械飞升"
+                },
+                {
+                    "handle": "brucecheng8529",
+                    "displayName": "Overseas"
+                },
+                {
+                    "handle": "som22612856",
+                    "displayName": "老馬 🐧蓝v互关🙇‍♂️"
+                },
+                {
+                    "handle": "gracexm2010",
+                    "displayName": "realgrace"
+                },
+                {
+                    "handle": "alexandre_lee00",
+                    "displayName": "alexandre"
+                },
+                {
+                    "handle": "_xiuluoshen",
+                    "displayName": "Mr.♠️"
+                },
+                {
+                    "handle": "xqt1688",
+                    "displayName": "江南雨💦狙击手"
+                },
+                {
+                    "handle": "cxpitter4",
+                    "displayName": "cryptogeek"
+                },
+                {
+                    "handle": "cryptodalan",
+                    "displayName": "大蓝"
+                },
+                {
+                    "handle": "eric092982",
+                    "displayName": "Eric"
+                },
+                {
+                    "handle": "liwang48429057",
+                    "displayName": "父子相會"
+                },
+                {
+                    "handle": "sanyecaoya",
+                    "displayName": "书墨醇香"
+                },
+                {
+                    "handle": "facaishu6",
+                    "displayName": "FACAISHU"
+                },
+                {
+                    "handle": "laowang_speaks",
+                    "displayName": "老王吃瓜日记"
+                },
+                {
+                    "handle": "fuying8988",
+                    "displayName": "颜汐💕"
+                },
+                {
+                    "handle": "suanminnow",
+                    "displayName": "酸菜鱼Little 🐟"
+                },
+                {
+                    "handle": "demonyins",
+                    "displayName": "demonyins"
+                },
+                {
+                    "handle": "mn04432875",
+                    "displayName": "一路同行 | 健康笔记"
+                },
+                {
+                    "handle": "ooooofreely",
+                    "displayName": "Rocky"
+                },
+                {
+                    "handle": "pikaray168",
+                    "displayName": "皮卡瑞"
+                },
+                {
+                    "handle": "erxiao72777",
+                    "displayName": "小鱼儿🐟"
+                },
+                {
+                    "handle": "oldman79300",
+                    "displayName": "Old Man"
+                },
+                {
+                    "handle": "enlighss",
+                    "displayName": "拾光遇趣"
+                },
+                {
+                    "handle": "davidzhulife",
+                    "displayName": "Davidzhu"
+                },
+                {
+                    "handle": "alzm0519",
+                    "displayName": "ALZM"
+                },
+                {
+                    "handle": "z3wew",
+                    "displayName": "御姐100%💕"
+                },
+                {
+                    "handle": "yunxiao85",
+                    "displayName": "Yunxiao云霄"
+                },
+                {
+                    "handle": "dianzishuwu",
+                    "displayName": "万卷书屋"
+                },
+                {
+                    "handle": "muhanmode123",
+                    "displayName": "马红梅（X上最性感的人）"
+                },
+                {
+                    "handle": "hzmjayyy",
+                    "displayName": "癌症靶向前沿"
+                },
+                {
+                    "handle": "langlang000000",
+                    "displayName": "朗朗.Luffy"
+                },
+                {
+                    "handle": "chatgdp50",
+                    "displayName": "chatX"
+                },
+                {
+                    "handle": "ym_alphanotes",
+                    "displayName": "玉米_AlphaNotes"
+                },
+                {
+                    "handle": "xzxt88",
+                    "displayName": "Meme狙击手小鹿🦌"
+                },
+                {
+                    "handle": "birdtechvision",
+                    "displayName": "🐦萌鸟视界-BirdVision"
+                },
+                {
+                    "handle": "lzhou22029",
+                    "displayName": "南归"
+                },
+                {
+                    "handle": "its_lvann",
+                    "displayName": "YaO LvAn"
+                },
+                {
+                    "handle": "wayfarer0888",
+                    "displayName": "行止人间/Wayfarer Notes"
+                },
+                {
+                    "handle": "afm_web3",
+                    "displayName": "链上新物种｜聊资本，也聊人"
+                },
+                {
+                    "handle": "cyan_aesthetics",
+                    "displayName": "Cyan | AI Aesthetics 🩵"
+                },
+                {
+                    "handle": "happy20250912",
+                    "displayName": "BodhiAlpha"
+                },
+                {
+                    "handle": "purehongkonger",
+                    "displayName": "Kumi 🐰✨💫"
+                },
+                {
+                    "handle": "white_dec12",
+                    "displayName": "White"
+                },
+                {
+                    "handle": "dxs1783",
+                    "displayName": "分享使者❤️"
+                },
+                {
+                    "handle": "qiqi3971",
+                    "displayName": "Qiqi｜淇淇姐 🐶"
+                },
+                {
+                    "handle": "yunbiyun",
+                    "displayName": "云比云"
+                },
+                {
+                    "handle": "tim8nbm",
+                    "displayName": "TimTimmy"
+                },
+                {
+                    "handle": "henryinvestx",
+                    "displayName": "Henry 鸿锐"
+                },
+                {
+                    "handle": "swq454492",
+                    "displayName": "舒晚秋"
+                },
+                {
+                    "handle": "wenwenflipped",
+                    "displayName": "wenwen"
+                },
+                {
+                    "handle": "yuying9ii",
+                    "displayName": "分享二小姐💔"
+                },
+                {
+                    "handle": "cryptogeneral8",
+                    "displayName": "李云龙"
+                },
+                {
+                    "handle": "nongfu_finn",
+                    "displayName": "潜龙在渊"
+                },
+                {
+                    "handle": "wsjqwhw2023",
+                    "displayName": "老枪"
+                },
+                {
+                    "handle": "b0na5i27il58885",
+                    "displayName": "杨雪莹"
+                },
+                {
+                    "handle": "stellakjbk",
+                    "displayName": "九尾狐-FoxFairy🦊"
+                },
+                {
+                    "handle": "lian_doctor000",
+                    "displayName": "@链医生000"
+                },
+                {
+                    "handle": "tuyouair",
+                    "displayName": "大言炎炎"
+                }
+            ]
+        }
+    ]
+}
