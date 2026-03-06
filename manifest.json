@@ -8,6 +8,10 @@
     "tabs",
     "scripting"
   ],
+  "host_permissions": [
+    "https://x.com/*",
+    "https://twitter.com/*"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
