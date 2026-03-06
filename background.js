@@ -162,8 +162,8 @@ async function handleSyncGroup(groupId, groupLink) {
             chrome.tabs.onUpdated.addListener(listener);
         });
 
-        // 额外等待让 SPA 渲染完成
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        // 额外等待让 SPA 渲染完成（较长等待避免触发 X.com 速率限制）
+        await new Promise(resolve => setTimeout(resolve, 6000));
 
         // 注入同步脚本（使用内联函数避免文件权限问题）
         const results = await chrome.scripting.executeScript({
@@ -199,7 +199,7 @@ async function syncGroupPageScript() {
     }
 
     try {
-        await delay(2000);
+        await delay(3000);
 
         // 1. 提取群聊名称
         let groupName = '';
@@ -248,7 +248,7 @@ async function syncGroupPageScript() {
             }
         }
 
-        await delay(2000);
+        await delay(3000);
 
         // 3. 抓取成员列表
         const members = new Map();
