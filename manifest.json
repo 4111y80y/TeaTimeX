@@ -5,12 +5,7 @@
   "description": "在 X.com 时间线上为 ❤️爱的茶馆🍵❤️ 群组成员显示特殊标志",
   "permissions": [
     "storage",
-    "tabs",
-    "scripting"
-  ],
-  "host_permissions": [
-    "https://x.com/*",
-    "https://twitter.com/*"
+    "tabs"
   ],
   "action": {
     "default_popup": "popup.html",
