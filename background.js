@@ -15,37 +15,27 @@ chrome.runtime.onInstalled.addListener(async (details) => {
             const newGroups = data.groups || [];
 
             if (details.reason === 'update') {
-                // 更新时：合并现有数据
+                // 更新时：用 members.json 的成员列表替换已有群聊的成员
                 const result = await chrome.storage.local.get('groups');
                 const existingGroups = result.groups || [];
 
                 if (existingGroups.length > 0) {
-                    // 构建现有群聊 map
                     const existingMap = {};
                     existingGroups.forEach((g) => {
                         existingMap[g.id] = g;
                     });
 
-                    // 合并内置群聊的成员到现有群聊
+                    // 用 members.json 的成员列表直接替换（保留用户自定义 icon/name）
                     const merged = newGroups.map((newGroup) => {
                         const existing = existingMap[newGroup.id];
                         if (existing) {
-                            // 保留用户自定义的 icon 和名称
-                            const mergedGroup = {
+                            return {
                                 ...newGroup,
                                 icon: existing.icon || newGroup.icon,
                                 name: existing.name || newGroup.name,
                                 link: existing.link || newGroup.link,
+                                members: newGroup.members, // 直接用新数据替换
                             };
-                            // 合并成员列表：保留现有 + 添加新成员
-                            const existingHandles = new Set(
-                                existing.members.map((m) => m.handle.toLowerCase())
-                            );
-                            const newMembers = newGroup.members.filter(
-                                (m) => !existingHandles.has(m.handle.toLowerCase())
-                            );
-                            mergedGroup.members = [...existing.members, ...newMembers];
-                            return mergedGroup;
                         }
                         return newGroup;
                     });
@@ -59,7 +49,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
                     });
 
                     await chrome.storage.local.set({ groups: merged });
-                    console.log(`[喝茶神器] 已合并更新 ${merged.length} 个群聊`);
+                    console.log(`[喝茶神器] 已更新 ${merged.length} 个群聊`);
                 } else {
                     // 旧版本升级：尝试迁移旧的 members 数据
                     const oldResult = await chrome.storage.local.get('members');
