@@ -489,35 +489,36 @@ function handleImport(e) {
     fileInput.value = '';
 }
 
-// 导出名单（包含群聊名称）
+// 导出当前群聊名单（包含群聊名称、logo等信息）
 function handleExport() {
-    // 导出所有群聊数据
-    if (groups.length === 0) {
-        showToast('没有可导出的群聊');
+    const group = getCurrentGroup();
+    if (!group) {
+        showToast('请先选择一个群聊');
         return;
     }
 
     const exportData = {
-        groups: groups.map(g => ({
-            id: g.id,
-            name: g.name,
-            link: g.link || '',
-            icon: g.icon || '🍵',
-            members: g.members.map(m => ({
+        groups: [{
+            id: group.id,
+            name: group.name,
+            link: group.link || '',
+            icon: group.icon || '🍵',
+            members: group.members.map(m => ({
                 handle: m.handle,
                 displayName: m.displayName || m.handle,
             })),
-        }))
+        }]
     };
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `喝茶神器_全部群聊_${new Date().toISOString().slice(0, 10)}.json`;
+    const safeName = (group.name || 'group').replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, '_');
+    a.download = `喝茶神器_${safeName}_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast(`已导出 ${groups.length} 个群聊`);
+    showToast(`已导出「${group.name}」${group.members.length} 位成员`);
 }
 
 // Toast 提示
