@@ -9,6 +9,7 @@
 
   // handle → [{ groupId, groupIcon, groupName }]
   let handleMap = {};
+  let currentUserHandle = null;
 
   // 从 chrome.storage 加载群聊数据
   function loadGroups() {
@@ -53,6 +54,10 @@
     if (!handle) return;
 
     const handleLower = handle.toLowerCase();
+
+    // 排除自己的帖子
+    if (currentUserHandle && handleLower === currentUserHandle) return;
+
     const groupInfos = handleMap[handleLower];
     if (!groupInfos || groupInfos.length === 0) return;
 
@@ -155,10 +160,28 @@
   });
 
   // 初始化
+  // 检测当前登录用户
+  function detectCurrentUser() {
+    const profileLink = document.querySelector('[data-testid="AppTabBar_Profile_Link"]');
+    if (profileLink) {
+      const href = profileLink.getAttribute('href');
+      if (href) {
+        const match = href.match(/^\/([A-Za-z0-9_]+)\/?$/);
+        if (match) {
+          currentUserHandle = match[1].toLowerCase();
+          console.log('[喝茶神器] 当前用户:', currentUserHandle);
+        }
+      }
+    }
+  }
+
   async function init() {
     await loadGroups();
+    detectCurrentUser();
     scanTimeline();
     startObserver();
+    // 延迟再检测一次（导航栏可能晚加载）
+    setTimeout(detectCurrentUser, 3000);
     const totalMembers = Object.keys(handleMap).length;
     console.log('[喝茶神器] 已加载，监控中...成员数:', totalMembers);
   }
