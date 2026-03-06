@@ -344,8 +344,13 @@ function deleteGroup() {
     if (!editingGroupId) return;
 
     const group = groups.find(g => g.id === editingGroupId);
-    const groupName = group ? group.name : '';
+    if (!group) return;
 
+    const memberCount = group.members ? group.members.length : 0;
+    const confirmed = confirm(`确定要删除群聊「${group.name}」吗？\n\n该群聊有 ${memberCount} 位成员，删除后不可恢复。`);
+    if (!confirmed) return;
+
+    const groupName = group.name;
     groups = groups.filter(g => g.id !== editingGroupId);
 
     if (currentGroupId === editingGroupId) {
