@@ -159,20 +159,78 @@
     }
   });
 
-  // 初始化
-  // 检测当前登录用户
+  // 检测当前登录用户（多种方式）
   function detectCurrentUser() {
+    if (currentUserHandle) return; // 已检测到
+
+    // 方式1: 导航栏 Profile 链接
     const profileLink = document.querySelector('[data-testid="AppTabBar_Profile_Link"]');
     if (profileLink) {
       const href = profileLink.getAttribute('href');
       if (href) {
         const match = href.match(/^\/([A-Za-z0-9_]+)\/?$/);
         if (match) {
-          currentUserHandle = match[1].toLowerCase();
-          console.log('[喝茶神器] 当前用户:', currentUserHandle);
+          setCurrentUser(match[1]);
+          return;
         }
       }
     }
+
+    // 方式2: 账号切换按钮（含 @handle 文本）
+    const accountBtn = document.querySelector('[data-testid="SideNav_AccountSwitcher_Button"]');
+    if (accountBtn) {
+      const spans = accountBtn.querySelectorAll('span');
+      for (const span of spans) {
+        const text = span.textContent.trim();
+        if (text.startsWith('@') && text.length > 1) {
+          setCurrentUser(text.slice(1));
+          return;
+        }
+      }
+    }
+
+    // 方式3: 侧栏头像链接
+    const navLinks = document.querySelectorAll('nav a[href^="/"]');
+    for (const link of navLinks) {
+      const href = link.getAttribute('href');
+      if (!href) continue;
+      const match = href.match(/^\/([A-Za-z0-9_]+)\/?$/);
+      if (match && !['home', 'explore', 'search', 'notifications', 'messages', 'i', 'settings', 'compose'].includes(match[1].toLowerCase())) {
+        const img = link.querySelector('img');
+        if (img && img.src && img.src.includes('profile_images')) {
+          setCurrentUser(match[1]);
+          return;
+        }
+      }
+    }
+  }
+
+  // 设置当前用户并清除已标记的自己的帖子
+  function setCurrentUser(handle) {
+    currentUserHandle = handle.toLowerCase();
+    console.log('[喝茶神器] 当前用户:', currentUserHandle);
+    removeOwnHighlights();
+  }
+
+  // 回溯清除自己帖子上已添加的标志和高亮
+  function removeOwnHighlights() {
+    if (!currentUserHandle) return;
+    document.querySelectorAll('article[data-testid="tweet"]').forEach(tweet => {
+      const userNameDiv = tweet.querySelector('[data-testid="User-Name"]');
+      if (!userNameDiv) return;
+      const links = Array.from(userNameDiv.querySelectorAll('a[href^="/"]'));
+      const handle = extractHandle(links);
+      if (handle && handle.toLowerCase() === currentUserHandle) {
+        // 移除标志
+        tweet.querySelectorAll('.teatimex-action-icon').forEach(el => el.remove());
+        // 移除高亮
+        tweet.classList.remove('teatimex-highlight');
+        const innerDiv = tweet.querySelector(':scope > div');
+        if (innerDiv) {
+          innerDiv.style.removeProperty('background-color');
+        }
+      }
+    });
   }
 
   async function init() {
@@ -180,8 +238,9 @@
     detectCurrentUser();
     scanTimeline();
     startObserver();
-    // 延迟再检测一次（导航栏可能晚加载）
-    setTimeout(detectCurrentUser, 3000);
+    // 多次延迟检测（页面元素可能晚加载）
+    setTimeout(detectCurrentUser, 2000);
+    setTimeout(detectCurrentUser, 5000);
     const totalMembers = Object.keys(handleMap).length;
     console.log('[喝茶神器] 已加载，监控中...成员数:', totalMembers);
   }
