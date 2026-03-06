@@ -81,5 +81,15 @@
         return origXhrSend.apply(this, arguments);
     };
 
+    // 监听 content script 的数据请求（通过 postMessage）
+    window.addEventListener('message', function (event) {
+        if (event.data && event.data.type === 'TEATIMEX_GET_CAPTURED_USERS') {
+            window.postMessage({
+                type: 'TEATIMEX_CAPTURED_USERS_RESPONSE',
+                users: Object.fromEntries(capturedUsers)
+            }, '*');
+        }
+    });
+
     console.log('[喝茶神器] API 拦截器已安装');
 })();

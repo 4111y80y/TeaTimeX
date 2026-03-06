@@ -170,25 +170,20 @@
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    // 从 MAIN world 读取拦截器收集的数据
+    // 从 MAIN world 读取拦截器收集的数据（通过 postMessage 避免 CSP 限制）
     function readCapturedUsers() {
       return new Promise(resolve => {
-        const readScript = document.createElement('script');
-        readScript.textContent = `
-          document.dispatchEvent(new CustomEvent('teatimex_sync_result', {
-            detail: JSON.stringify(window.__teatimex_captured_users || {})
-          }));
-        `;
-        document.addEventListener('teatimex_sync_result', function handler(e) {
-          document.removeEventListener('teatimex_sync_result', handler);
-          try {
-            resolve(JSON.parse(e.detail));
-          } catch {
-            resolve({});
+        const timeout = setTimeout(() => resolve({}), 5000);
+
+        function handler(event) {
+          if (event.data && event.data.type === 'TEATIMEX_CAPTURED_USERS_RESPONSE') {
+            window.removeEventListener('message', handler);
+            clearTimeout(timeout);
+            resolve(event.data.users || {});
           }
-        });
-        document.documentElement.appendChild(readScript);
-        readScript.remove();
+        }
+        window.addEventListener('message', handler);
+        window.postMessage({ type: 'TEATIMEX_GET_CAPTURED_USERS' }, '*');
       });
     }
 
