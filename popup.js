@@ -38,7 +38,7 @@ let selectedLogo = '🍵';
 const headerIcon = document.getElementById('headerIcon');
 const headerName = document.getElementById('headerName');
 const headerSubtitle = document.getElementById('headerSubtitle');
-const groupTabs = document.getElementById('groupTabs');
+const groupSelect = document.getElementById('groupSelect');
 const btnNewGroup = document.getElementById('btnNewGroup');
 const memberList = document.getElementById('memberList');
 const memberCount = document.getElementById('memberCount');
@@ -49,11 +49,7 @@ const btnAdd = document.getElementById('btnAdd');
 const btnEditGroup = document.getElementById('btnEditGroup');
 const btnImport = document.getElementById('btnImport');
 const btnExport = document.getElementById('btnExport');
-const btnSync = document.getElementById('btnSync');
 const fileInput = document.getElementById('fileInput');
-const leftMembersBar = document.getElementById('leftMembersBar');
-const leftMembersCount = document.getElementById('leftMembersCount');
-const btnCleanLeft = document.getElementById('btnCleanLeft');
 
 // Modal 元素
 const groupModal = document.getElementById('groupModal');
@@ -78,14 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadGroups() {
     chrome.storage.local.get('groups', (result) => {
         groups = result.groups || [];
-        // 如果有之前选中的群聊，保持选中
         if (currentGroupId && !groups.find(g => g.id === currentGroupId)) {
             currentGroupId = null;
         }
         if (!currentGroupId && groups.length > 0) {
             currentGroupId = groups[0].id;
         }
-        renderGroupTabs();
+        renderGroupSelect();
         renderCurrentGroup();
     });
 }
@@ -93,7 +88,7 @@ function loadGroups() {
 // 保存群聊列表
 function saveGroups(callback) {
     chrome.storage.local.set({ groups }, () => {
-        renderGroupTabs();
+        renderGroupSelect();
         renderCurrentGroup();
         if (callback) callback();
     });
@@ -104,14 +99,17 @@ function getCurrentGroup() {
     return groups.find(g => g.id === currentGroupId) || null;
 }
 
-// 渲染群聊 Tab 栏
-function renderGroupTabs() {
-    groupTabs.innerHTML = groups.map(g => `
-        <button class="group-tab ${g.id === currentGroupId ? 'active' : ''}" data-id="${escapeHtml(g.id)}">
-            <span class="group-tab-icon">${g.icon || '🍵'}</span>
-            <span class="group-tab-name">${escapeHtml(g.name || '未命名')}</span>
-        </button>
-    `).join('');
+// 渲染群聊下拉选择器
+function renderGroupSelect() {
+    if (groups.length === 0) {
+        groupSelect.innerHTML = '<option value="">-- 请创建群聊 --</option>';
+        return;
+    }
+
+    groupSelect.innerHTML = groups.map(g =>
+        `<option value="${escapeHtml(g.id)}" ${g.id === currentGroupId ? 'selected' : ''}>` +
+        `${g.icon || '🍵'} ${escapeHtml(g.name || '未命名')}</option>`
+    ).join('');
 }
 
 // 渲染当前群聊的内容
@@ -119,15 +117,11 @@ function renderCurrentGroup() {
     const group = getCurrentGroup();
 
     if (!group) {
-        // 没有群聊
         headerIcon.textContent = '🍵';
         headerName.textContent = '喝茶神器';
         headerSubtitle.textContent = '点击 ＋ 创建你的第一个群聊';
         memberCount.textContent = '0 位成员';
-        footerLink.href = '#';
-        footerLink.style.visibility = 'hidden';
         btnEditGroup.style.display = 'none';
-        btnSync.style.display = 'none';
         memberList.innerHTML = `
             <div class="no-group-state">
                 <div class="no-group-icon">🍵</div>
@@ -137,22 +131,10 @@ function renderCurrentGroup() {
         return;
     }
 
-    // 更新 header 为当前群聊名称
     headerIcon.textContent = group.icon || '🍵';
     headerName.textContent = group.name || '未命名群聊';
     headerSubtitle.textContent = `${group.members.length} 位成员`;
     btnEditGroup.style.display = '';
-    btnSync.style.display = '';
-
-
-    // 显示离群成员操作栏
-    const leftCount = group.members.filter(m => m.left).length;
-    if (leftCount > 0) {
-        leftMembersBar.style.display = 'flex';
-        leftMembersCount.textContent = `${leftCount} 人已离群`;
-    } else {
-        leftMembersBar.style.display = 'none';
-    }
 
     renderMembers(searchInput.value);
 }
@@ -183,21 +165,11 @@ function renderMembers(filter = '') {
         return;
     }
 
-    // 先显示正常成员，再显示离群成员
-    const sortedFiltered = [...filtered].sort((a, b) => {
-        if (a.left && !b.left) return 1;
-        if (!a.left && b.left) return -1;
-        return 0;
-    });
-
-    memberList.innerHTML = sortedFiltered.map((m) => `
-        <div class="member-item ${m.left ? 'left-group' : ''}" data-handle="${escapeHtml(m.handle)}">
+    memberList.innerHTML = filtered.map((m) => `
+        <div class="member-item" data-handle="${escapeHtml(m.handle)}">
             <span class="member-icon">${group.icon || '🍵'}</span>
             <div class="member-info">
-                <div class="member-name">
-                    ${escapeHtml(m.displayName || m.handle)}
-                    ${m.left ? '<span class="member-left-badge">已离群</span>' : ''}
-                </div>
+                <div class="member-name">${escapeHtml(m.displayName || m.handle)}</div>
                 <div class="member-handle">
                     <a href="https://x.com/${encodeURIComponent(m.handle)}" target="_blank">@${escapeHtml(m.handle)}</a>
                 </div>
@@ -209,15 +181,11 @@ function renderMembers(filter = '') {
 
 // 绑定事件
 function bindEvents() {
-    // 群聊 Tab 切换
-    groupTabs.addEventListener('click', (e) => {
-        const tab = e.target.closest('.group-tab');
-        if (tab) {
-            currentGroupId = tab.dataset.id;
-            searchInput.value = '';
-            renderGroupTabs();
-            renderCurrentGroup();
-        }
+    // 群聊下拉切换
+    groupSelect.addEventListener('change', (e) => {
+        currentGroupId = e.target.value;
+        searchInput.value = '';
+        renderCurrentGroup();
     });
 
     // 新建群聊
@@ -245,12 +213,6 @@ function bindEvents() {
             deleteMember(deleteBtn.dataset.handle);
         }
     });
-
-    // 同步
-    btnSync.addEventListener('click', syncGroup);
-
-    // 清除离群成员
-    btnCleanLeft.addEventListener('click', cleanLeftMembers);
 
     // 导入
     btnImport.addEventListener('click', () => fileInput.click());
@@ -290,7 +252,6 @@ function addMember() {
         return;
     }
 
-    // 检查重复
     if (group.members.some((m) => m.handle.toLowerCase() === handle.toLowerCase())) {
         showToast('该用户已在此群聊中');
         return;
@@ -321,7 +282,6 @@ function openGroupModal(groupId) {
     editingGroupId = groupId;
 
     if (groupId) {
-        // 编辑模式
         const group = groups.find(g => g.id === groupId);
         if (!group) return;
         modalTitle.textContent = '编辑群聊';
@@ -330,7 +290,6 @@ function openGroupModal(groupId) {
         selectedLogo = group.icon || '🍵';
         btnDeleteGroup.style.display = '';
     } else {
-        // 新建模式
         modalTitle.textContent = '新建群聊';
         groupNameInput.value = '';
         groupLinkInput.value = '';
@@ -349,28 +308,26 @@ function closeGroupModal() {
 }
 
 function saveGroup() {
-    const link = groupLinkInput.value.trim();
     const name = groupNameInput.value.trim();
+    const link = groupLinkInput.value.trim();
 
-    if (!editingGroupId && !link) {
-        showToast('请输入群聊链接');
-        groupLinkInput.focus();
+    if (!name) {
+        showToast('请输入群聊名称');
+        groupNameInput.focus();
         return;
     }
 
     if (editingGroupId) {
-        // 更新现有群聊
         const group = groups.find(g => g.id === editingGroupId);
         if (group) {
-            if (name) group.name = name;
+            group.name = name;
             group.link = link;
             group.icon = selectedLogo;
         }
     } else {
-        // 创建新群聊
         const newGroup = {
             id: 'g_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-            name: name || '新群聊',
+            name,
             link,
             icon: selectedLogo,
             members: [],
@@ -379,15 +336,8 @@ function saveGroup() {
         currentGroupId = newGroup.id;
     }
 
-    const isNew = !editingGroupId;
     closeGroupModal();
-    saveGroups(() => {
-        if (isNew) {
-            showToast('群聊已创建，请点击 🔄 同步成员');
-        } else {
-            showToast('群聊已更新');
-        }
-    });
+    saveGroups(() => showToast(editingGroupId ? '群聊已更新' : '群聊已创建'));
 }
 
 function deleteGroup() {
@@ -428,51 +378,104 @@ function updateLogoSelection() {
     });
 }
 
+// ============ 导入导出（包含群聊名称） ============
+
 // 导入名单
 function handleImport(e) {
     const file = e.target.files[0];
     if (!file) return;
-
-    const group = getCurrentGroup();
-    if (!group) {
-        showToast('请先选择或创建群聊');
-        fileInput.value = '';
-        return;
-    }
 
     const reader = new FileReader();
     reader.onload = (event) => {
         try {
             const imported = JSON.parse(event.target.result);
 
-            // 支持新格式（groups）和旧格式（扁平数组）
-            let membersToImport = [];
+            // 支持新格式（groups 数组含群名）和旧格式（扁平数组）
             if (imported.groups && Array.isArray(imported.groups)) {
-                // 新格式：合并所有群聊的成员
-                imported.groups.forEach(g => {
-                    if (g.members) membersToImport.push(...g.members);
+                // 新格式：每个群聊独立导入或合并
+                let importedCount = 0;
+                let newGroupCount = 0;
+
+                imported.groups.forEach(importedGroup => {
+                    if (!importedGroup.members || !Array.isArray(importedGroup.members)) return;
+
+                    // 尝试按 id 或 name 匹配已有群聊
+                    let existingGroup = null;
+                    if (importedGroup.id) {
+                        existingGroup = groups.find(g => g.id === importedGroup.id);
+                    }
+                    if (!existingGroup && importedGroup.name) {
+                        existingGroup = groups.find(g => g.name === importedGroup.name);
+                    }
+
+                    if (existingGroup) {
+                        // 合并到已有群聊
+                        if (importedGroup.name) existingGroup.name = importedGroup.name;
+                        if (importedGroup.icon) existingGroup.icon = importedGroup.icon;
+                        if (importedGroup.link) existingGroup.link = importedGroup.link;
+
+                        importedGroup.members.forEach(m => {
+                            if (m.handle && !existingGroup.members.some(
+                                em => em.handle.toLowerCase() === m.handle.toLowerCase()
+                            )) {
+                                existingGroup.members.push({
+                                    handle: m.handle,
+                                    displayName: m.displayName || m.name || m.handle,
+                                });
+                                importedCount++;
+                            }
+                        });
+                    } else {
+                        // 创建新群聊
+                        const newGroup = {
+                            id: importedGroup.id || 'g_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                            name: importedGroup.name || '导入的群聊',
+                            link: importedGroup.link || importedGroup.url || '',
+                            icon: importedGroup.icon || '🍵',
+                            members: importedGroup.members.map(m => ({
+                                handle: m.handle,
+                                displayName: m.displayName || m.name || m.handle,
+                            })),
+                        };
+                        groups.push(newGroup);
+                        if (!currentGroupId) currentGroupId = newGroup.id;
+                        importedCount += newGroup.members.length;
+                        newGroupCount++;
+                    }
+                });
+
+                saveGroups(() => {
+                    const parts = [];
+                    if (newGroupCount > 0) parts.push(`新建 ${newGroupCount} 个群聊`);
+                    if (importedCount > 0) parts.push(`导入 ${importedCount} 位成员`);
+                    showToast(parts.length > 0 ? parts.join(', ') : '无新数据');
                 });
             } else if (Array.isArray(imported)) {
-                membersToImport = imported;
+                // 旧格式：扁平数组，导入到当前群聊
+                const group = getCurrentGroup();
+                if (!group) {
+                    showToast('请先选择或创建群聊');
+                    fileInput.value = '';
+                    return;
+                }
+
+                let added = 0;
+                imported.forEach((item) => {
+                    if (item.handle && !group.members.some((m) =>
+                        m.handle.toLowerCase() === item.handle.toLowerCase()
+                    )) {
+                        group.members.push({
+                            handle: item.handle,
+                            displayName: item.displayName || item.handle,
+                        });
+                        added++;
+                    }
+                });
+
+                saveGroups(() => showToast(`成功导入 ${added} 位新成员`));
             } else {
                 showToast('文件格式错误');
-                return;
             }
-
-            let added = 0;
-            membersToImport.forEach((item) => {
-                if (item.handle && !group.members.some((m) =>
-                    m.handle.toLowerCase() === item.handle.toLowerCase()
-                )) {
-                    group.members.push({
-                        handle: item.handle,
-                        displayName: item.displayName || item.handle,
-                    });
-                    added++;
-                }
-            });
-
-            saveGroups(() => showToast(`成功导入 ${added} 位新成员`));
         } catch (err) {
             showToast('解析文件失败');
         }
@@ -481,26 +484,35 @@ function handleImport(e) {
     fileInput.value = '';
 }
 
-// 导出名单
+// 导出名单（包含群聊名称）
 function handleExport() {
-    const group = getCurrentGroup();
-    if (!group) {
-        showToast('请先选择一个群聊');
+    // 导出所有群聊数据
+    if (groups.length === 0) {
+        showToast('没有可导出的群聊');
         return;
     }
 
     const exportData = {
-        groups: [group]
+        groups: groups.map(g => ({
+            id: g.id,
+            name: g.name,
+            link: g.link || '',
+            icon: g.icon || '🍵',
+            members: g.members.map(m => ({
+                handle: m.handle,
+                displayName: m.displayName || m.handle,
+            })),
+        }))
     };
+
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    const safeName = (group.name || 'group').replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, '_');
-    a.download = `喝茶神器_${safeName}_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `喝茶神器_全部群聊_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('名单已导出');
+    showToast(`已导出 ${groups.length} 个群聊`);
 }
 
 // Toast 提示
@@ -521,108 +533,4 @@ function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
-}
-
-// ============ 同步功能 ============
-
-async function syncGroup() {
-    const group = getCurrentGroup();
-    if (!group) {
-        showToast('请先选择一个群聊');
-        return;
-    }
-
-    if (!group.link) {
-        showToast('请先编辑群聊并填写群聊链接');
-        return;
-    }
-
-    // 显示同步动画
-    btnSync.classList.add('syncing');
-    showToast('正在同步群聊成员...');
-
-    try {
-        const result = await new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage(
-                { type: 'SYNC_GROUP', groupId: group.id, groupLink: group.link },
-                (response) => {
-                    if (chrome.runtime.lastError) {
-                        reject(new Error(chrome.runtime.lastError.message));
-                    } else {
-                        resolve(response);
-                    }
-                }
-            );
-        });
-
-        btnSync.classList.remove('syncing');
-
-        if (!result || !result.success) {
-            showToast('同步失败: ' + (result ? result.error : '未知错误'));
-            return;
-        }
-
-        // 更新群聊名称
-        if (result.groupName && result.groupName !== group.name) {
-            group.name = result.groupName;
-        }
-
-        // 合并成员列表
-        const syncedHandles = new Set(
-            result.members.map(m => m.handle.toLowerCase())
-        );
-        const existingHandles = new Set(
-            group.members.map(m => m.handle.toLowerCase())
-        );
-
-        // 标记离群成员
-        let leftCount = 0;
-        group.members.forEach(m => {
-            if (!syncedHandles.has(m.handle.toLowerCase())) {
-                m.left = true;
-                leftCount++;
-            } else {
-                // 如果之前标记为离群，现在又回来了
-                delete m.left;
-            }
-        });
-
-        // 添加新成员
-        let addedCount = 0;
-        result.members.forEach(m => {
-            if (!existingHandles.has(m.handle.toLowerCase())) {
-                group.members.push({
-                    handle: m.handle,
-                    displayName: m.displayName || m.handle,
-                });
-                addedCount++;
-            }
-        });
-
-        saveGroups(() => {
-            let msg = '同步完成';
-            const parts = [];
-            if (addedCount > 0) parts.push(`新增 ${addedCount} 人`);
-            if (leftCount > 0) parts.push(`${leftCount} 人已离群`);
-            if (parts.length > 0) msg += ': ' + parts.join(', ');
-            else msg += ', 无变化';
-            showToast(msg);
-        });
-
-    } catch (error) {
-        btnSync.classList.remove('syncing');
-        showToast('同步出错: ' + error.message);
-    }
-}
-
-// 一键清除离群成员
-function cleanLeftMembers() {
-    const group = getCurrentGroup();
-    if (!group) return;
-
-    const leftCount = group.members.filter(m => m.left).length;
-    if (leftCount === 0) return;
-
-    group.members = group.members.filter(m => !m.left);
-    saveGroups(() => showToast(`已清除 ${leftCount} 位离群成员`));
 }

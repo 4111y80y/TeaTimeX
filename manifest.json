@@ -1,11 +1,10 @@
 {
   "manifest_version": 3,
   "name": "喝茶神器",
-  "version": "2.1.0",
-  "description": "在 X.com 时间线上为多个群聊分类的成员显示对应群聊标志，支持自动同步群聊成员",
+  "version": "2.2.0",
+  "description": "在 X.com 时间线上为多个群聊分类的成员显示对应群聊标志，支持 JSON 导入导出",
   "permissions": [
-    "storage",
-    "tabs"
+    "storage"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -21,17 +20,6 @@
     "128": "icons/icon128.png"
   },
   "content_scripts": [
-    {
-      "matches": [
-        "https://x.com/*",
-        "https://twitter.com/*"
-      ],
-      "js": [
-        "sync_interceptor.js"
-      ],
-      "run_at": "document_start",
-      "world": "MAIN"
-    },
     {
       "matches": [
         "https://x.com/*",

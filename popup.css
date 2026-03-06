@@ -92,73 +92,49 @@ body {
     text-overflow: ellipsis;
 }
 
-/* Group Tabs Bar */
-.group-tabs-bar {
+/* Group Select Bar (下拉选择器) */
+.group-select-bar {
     display: flex;
     align-items: center;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border);
-    padding: 0;
-}
-
-.group-tabs {
-    display: flex;
-    flex: 1;
-    overflow-x: auto;
-    scrollbar-width: none;
     padding: 6px 8px;
-    gap: 4px;
+    gap: 6px;
 }
 
-.group-tabs::-webkit-scrollbar {
-    display: none;
-}
-
-.group-tab {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 5px 10px;
+.group-select {
+    flex: 1;
+    padding: 6px 10px;
+    background: var(--bg-primary);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    background: transparent;
-    color: var(--text-secondary);
-    font-size: 12px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s;
-    flex-shrink: 0;
-}
-
-.group-tab:hover {
-    background: var(--bg-hover);
-    border-color: var(--accent);
+    border-radius: var(--radius-sm);
     color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238899a6' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+    transition: border-color 0.2s;
 }
 
-.group-tab.active {
-    background: var(--accent);
+.group-select:focus {
     border-color: var(--accent);
-    color: #fff;
-    font-weight: 600;
 }
 
-.group-tab-icon {
-    font-size: 14px;
-    line-height: 1;
-}
-
-.group-tab-name {
-    max-width: 80px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.group-select option {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 6px;
 }
 
 .btn-new-group {
     flex-shrink: 0;
     width: 32px;
     height: 32px;
-    margin: 0 6px;
     border: 1px dashed var(--border);
     border-radius: 50%;
     background: transparent;
@@ -428,7 +404,6 @@ body {
     background: var(--bg-secondary);
 }
 
-
 .footer-ver {
     font-size: 10px;
     color: var(--text-secondary);
@@ -533,13 +508,6 @@ body {
     color: var(--text-secondary);
     font-weight: 400;
     font-size: 11px;
-}
-
-.field-hint {
-    font-size: 11px;
-    color: var(--text-secondary);
-    margin: 4px 0 6px 0;
-    line-height: 1.4;
 }
 
 /* Logo Preview */
@@ -696,76 +664,4 @@ body {
 .toast.show {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
-}
-
-/* ============ Sync Feature ============ */
-
-/* Sync button spinning animation */
-.btn-sync.syncing {
-    animation: spin 1s linear infinite;
-    pointer-events: none;
-    opacity: 0.6;
-}
-
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* Left members bar */
-.left-members-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 6px 16px;
-    background: rgba(244, 33, 46, 0.08);
-    border-bottom: 1px solid rgba(244, 33, 46, 0.2);
-}
-
-.left-members-bar span {
-    font-size: 12px;
-    color: var(--danger);
-    font-weight: 500;
-}
-
-.btn-clean {
-    padding: 4px 10px;
-    background: var(--danger);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.btn-clean:hover {
-    background: var(--danger-hover);
-}
-
-/* Left member highlight */
-.member-item.left-group {
-    opacity: 0.5;
-    background: rgba(244, 33, 46, 0.05);
-}
-
-.member-item.left-group .member-name {
-    text-decoration: line-through;
-    color: var(--danger);
-}
-
-.member-left-badge {
-    font-size: 10px;
-    color: var(--danger);
-    background: rgba(244, 33, 46, 0.1);
-    padding: 1px 6px;
-    border-radius: 8px;
-    margin-left: 4px;
-    white-space: nowrap;
 }

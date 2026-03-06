@@ -19,11 +19,11 @@
       <p class="header-subtitle" id="headerSubtitle">请选择或创建群聊</p>
     </header>
 
-    <!-- 群聊 Tab 栏 -->
-    <div class="group-tabs-bar">
-      <div class="group-tabs" id="groupTabs">
+    <!-- 群聊选择栏（下拉 + 新建） -->
+    <div class="group-select-bar">
+      <select class="group-select" id="groupSelect">
         <!-- 动态生成 -->
-      </div>
+      </select>
       <button class="btn-new-group" id="btnNewGroup" title="创建新群聊">＋</button>
     </div>
 
@@ -31,7 +31,6 @@
     <div class="stats-bar">
       <span class="stats-count" id="memberCount">0 位成员</span>
       <div class="stats-actions">
-        <button class="btn-icon btn-sync" id="btnSync" title="从群聊链接同步成员">🔄</button>
         <button class="btn-icon" id="btnEditGroup" title="编辑群聊">⚙️</button>
         <button class="btn-icon" id="btnImport" title="导入名单">📥</button>
         <button class="btn-icon" id="btnExport" title="导出名单">📤</button>
@@ -50,12 +49,6 @@
       <button class="btn-add" id="btnAdd">+ 添加成员</button>
     </div>
 
-    <!-- 离群成员操作栏 -->
-    <div class="left-members-bar" id="leftMembersBar" style="display:none">
-      <span id="leftMembersCount">0 人已离群</span>
-      <button class="btn-clean" id="btnCleanLeft">一键清除离群成员</button>
-    </div>
-
     <!-- 用户列表 -->
     <div class="member-list" id="memberList">
       <!-- 动态生成 -->
@@ -63,7 +56,7 @@
 
     <!-- 底部 -->
     <footer class="footer">
-      <span class="footer-ver">喝茶神器 v2.1.0</span>
+      <span class="footer-ver">喝茶神器 v2.2.0</span>
     </footer>
   </div>
 
@@ -78,11 +71,10 @@
         <button class="btn-close" id="btnCloseModal">✕</button>
       </div>
       <div class="modal-body">
-        <label>群聊链接 <span class="label-required">*</span></label>
+        <label>群聊名称 <span class="label-required">*</span></label>
+        <input type="text" id="groupName" placeholder="例如：❤️爱的茶馆🍵❤️" autocomplete="off">
+        <label>群聊链接 <span class="label-optional">(可选)</span></label>
         <input type="text" id="groupLink" placeholder="https://x.com/i/chat/..." autocomplete="off">
-        <p class="field-hint" id="linkHint">填写链接后保存，然后点击 🔄 同步按钮自动获取群聊名称和成员</p>
-        <label>群聊名称 <span class="label-optional">(同步后自动填充)</span></label>
-        <input type="text" id="groupName" placeholder="保存后同步自动获取" autocomplete="off">
         <label>选择 Logo</label>
         <div class="logo-preview">
           <span id="logoPreview" class="logo-preview-icon">🍵</span>
