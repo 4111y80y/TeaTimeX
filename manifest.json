@@ -4,7 +4,9 @@
   "version": "2.0.0",
   "description": "在 X.com 时间线上为 ❤️爱的茶馆🍵❤️ 群组成员显示特殊标志",
   "permissions": [
-    "storage"
+    "storage",
+    "tabs",
+    "scripting"
   ],
   "action": {
     "default_popup": "popup.html",

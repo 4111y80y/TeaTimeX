@@ -49,8 +49,12 @@ const btnAdd = document.getElementById('btnAdd');
 const btnEditGroup = document.getElementById('btnEditGroup');
 const btnImport = document.getElementById('btnImport');
 const btnExport = document.getElementById('btnExport');
+const btnSync = document.getElementById('btnSync');
 const fileInput = document.getElementById('fileInput');
 const footerLink = document.getElementById('footerLink');
+const leftMembersBar = document.getElementById('leftMembersBar');
+const leftMembersCount = document.getElementById('leftMembersCount');
+const btnCleanLeft = document.getElementById('btnCleanLeft');
 
 // Modal 元素
 const groupModal = document.getElementById('groupModal');
@@ -148,6 +152,15 @@ function renderCurrentGroup() {
         footerLink.style.visibility = 'hidden';
     }
 
+    // 显示离群成员操作栏
+    const leftCount = group.members.filter(m => m.left).length;
+    if (leftCount > 0) {
+        leftMembersBar.style.display = 'flex';
+        leftMembersCount.textContent = `${leftCount} 人已离群`;
+    } else {
+        leftMembersBar.style.display = 'none';
+    }
+
     renderMembers(searchInput.value);
 }
 
@@ -177,11 +190,21 @@ function renderMembers(filter = '') {
         return;
     }
 
-    memberList.innerHTML = filtered.map((m) => `
-        <div class="member-item" data-handle="${escapeHtml(m.handle)}">
+    // 先显示正常成员，再显示离群成员
+    const sortedFiltered = [...filtered].sort((a, b) => {
+        if (a.left && !b.left) return 1;
+        if (!a.left && b.left) return -1;
+        return 0;
+    });
+
+    memberList.innerHTML = sortedFiltered.map((m) => `
+        <div class="member-item ${m.left ? 'left-group' : ''}" data-handle="${escapeHtml(m.handle)}">
             <span class="member-icon">${group.icon || '🍵'}</span>
             <div class="member-info">
-                <div class="member-name">${escapeHtml(m.displayName || m.handle)}</div>
+                <div class="member-name">
+                    ${escapeHtml(m.displayName || m.handle)}
+                    ${m.left ? '<span class="member-left-badge">已离群</span>' : ''}
+                </div>
                 <div class="member-handle">
                     <a href="https://x.com/${encodeURIComponent(m.handle)}" target="_blank">@${escapeHtml(m.handle)}</a>
                 </div>
@@ -229,6 +252,12 @@ function bindEvents() {
             deleteMember(deleteBtn.dataset.handle);
         }
     });
+
+    // 同步
+    btnSync.addEventListener('click', syncGroup);
+
+    // 清除离群成员
+    btnCleanLeft.addEventListener('click', cleanLeftMembers);
 
     // 导入
     btnImport.addEventListener('click', () => fileInput.click());
@@ -492,4 +521,108 @@ function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+}
+
+// ============ 同步功能 ============
+
+async function syncGroup() {
+    const group = getCurrentGroup();
+    if (!group) {
+        showToast('请先选择一个群聊');
+        return;
+    }
+
+    if (!group.link) {
+        showToast('请先编辑群聊并填写群聊链接');
+        return;
+    }
+
+    // 显示同步动画
+    btnSync.classList.add('syncing');
+    showToast('正在同步群聊成员...');
+
+    try {
+        const result = await new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage(
+                { type: 'SYNC_GROUP', groupId: group.id, groupLink: group.link },
+                (response) => {
+                    if (chrome.runtime.lastError) {
+                        reject(new Error(chrome.runtime.lastError.message));
+                    } else {
+                        resolve(response);
+                    }
+                }
+            );
+        });
+
+        btnSync.classList.remove('syncing');
+
+        if (!result || !result.success) {
+            showToast('同步失败: ' + (result ? result.error : '未知错误'));
+            return;
+        }
+
+        // 更新群聊名称
+        if (result.groupName && result.groupName !== group.name) {
+            group.name = result.groupName;
+        }
+
+        // 合并成员列表
+        const syncedHandles = new Set(
+            result.members.map(m => m.handle.toLowerCase())
+        );
+        const existingHandles = new Set(
+            group.members.map(m => m.handle.toLowerCase())
+        );
+
+        // 标记离群成员
+        let leftCount = 0;
+        group.members.forEach(m => {
+            if (!syncedHandles.has(m.handle.toLowerCase())) {
+                m.left = true;
+                leftCount++;
+            } else {
+                // 如果之前标记为离群，现在又回来了
+                delete m.left;
+            }
+        });
+
+        // 添加新成员
+        let addedCount = 0;
+        result.members.forEach(m => {
+            if (!existingHandles.has(m.handle.toLowerCase())) {
+                group.members.push({
+                    handle: m.handle,
+                    displayName: m.displayName || m.handle,
+                });
+                addedCount++;
+            }
+        });
+
+        saveGroups(() => {
+            let msg = '同步完成';
+            const parts = [];
+            if (addedCount > 0) parts.push(`新增 ${addedCount} 人`);
+            if (leftCount > 0) parts.push(`${leftCount} 人已离群`);
+            if (parts.length > 0) msg += ': ' + parts.join(', ');
+            else msg += ', 无变化';
+            showToast(msg);
+        });
+
+    } catch (error) {
+        btnSync.classList.remove('syncing');
+        showToast('同步出错: ' + error.message);
+    }
+}
+
+// 一键清除离群成员
+function cleanLeftMembers() {
+    const group = getCurrentGroup();
+    if (!group) return;
+
+    const leftCount = group.members.filter(m => m.left).length;
+    if (leftCount === 0) return;
+
+    group.members = group.members.filter(m => !m.left);
+    saveGroups(() => showToast(`已清除 ${leftCount} 位离群成员`));
 }

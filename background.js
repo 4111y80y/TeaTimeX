@@ -110,7 +110,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         chrome.storage.local.get('groups', (result) => {
             sendResponse({ groups: result.groups || [] });
         });
-        return true; // 异步响应
+        return true;
     }
 
     if (message.type === 'GET_GROUP_COUNT') {
@@ -121,4 +121,72 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
         return true;
     }
+
+    if (message.type === 'SYNC_GROUP') {
+        handleSyncGroup(message.groupId, message.groupLink)
+            .then(result => sendResponse(result))
+            .catch(err => sendResponse({ success: false, error: err.message }));
+        return true;
+    }
 });
+
+// 处理群聊同步
+async function handleSyncGroup(groupId, groupLink) {
+    if (!groupLink) {
+        return { success: false, error: '群聊没有设置链接，请先编辑群聊并填写群聊链接' };
+    }
+
+    // 确保链接指向 info 页面
+    let infoUrl = groupLink;
+    if (!infoUrl.endsWith('/info')) {
+        infoUrl = infoUrl.replace(/\/$/, '') + '/info';
+    }
+    // 如果是非 info 链接（如 /members），转换为 info
+    infoUrl = infoUrl.replace(/\/members$/, '/info');
+
+    let tab = null;
+    try {
+        // 打开新 tab
+        tab = await chrome.tabs.create({ url: infoUrl, active: false });
+
+        // 等待页面加载完成
+        await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error('页面加载超时')), 30000);
+
+            function listener(tabId, changeInfo) {
+                if (tabId === tab.id && changeInfo.status === 'complete') {
+                    chrome.tabs.onUpdated.removeListener(listener);
+                    clearTimeout(timeout);
+                    resolve();
+                }
+            }
+            chrome.tabs.onUpdated.addListener(listener);
+        });
+
+        // 额外等待让 SPA 渲染完成
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // 注入同步脚本
+        const results = await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ['sync.js'],
+        });
+
+        // 关闭 tab
+        await chrome.tabs.remove(tab.id);
+        tab = null;
+
+        if (results && results[0] && results[0].result) {
+            return results[0].result;
+        }
+
+        return { success: false, error: '同步脚本未返回结果' };
+
+    } catch (error) {
+        // 确保清理 tab
+        if (tab) {
+            try { await chrome.tabs.remove(tab.id); } catch (e) { /* ignore */ }
+        }
+        return { success: false, error: error.message || '同步失败' };
+    }
+}

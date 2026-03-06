@@ -690,3 +690,75 @@ body {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
 }
+
+/* ============ Sync Feature ============ */
+
+/* Sync button spinning animation */
+.btn-sync.syncing {
+    animation: spin 1s linear infinite;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Left members bar */
+.left-members-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 16px;
+    background: rgba(244, 33, 46, 0.08);
+    border-bottom: 1px solid rgba(244, 33, 46, 0.2);
+}
+
+.left-members-bar span {
+    font-size: 12px;
+    color: var(--danger);
+    font-weight: 500;
+}
+
+.btn-clean {
+    padding: 4px 10px;
+    background: var(--danger);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-clean:hover {
+    background: var(--danger-hover);
+}
+
+/* Left member highlight */
+.member-item.left-group {
+    opacity: 0.5;
+    background: rgba(244, 33, 46, 0.05);
+}
+
+.member-item.left-group .member-name {
+    text-decoration: line-through;
+    color: var(--danger);
+}
+
+.member-left-badge {
+    font-size: 10px;
+    color: var(--danger);
+    background: rgba(244, 33, 46, 0.1);
+    padding: 1px 6px;
+    border-radius: 8px;
+    margin-left: 4px;
+    white-space: nowrap;
+}

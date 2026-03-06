@@ -31,6 +31,7 @@
     <div class="stats-bar">
       <span class="stats-count" id="memberCount">0 位成员</span>
       <div class="stats-actions">
+        <button class="btn-icon btn-sync" id="btnSync" title="从群聊链接同步成员">🔄</button>
         <button class="btn-icon" id="btnEditGroup" title="编辑群聊">⚙️</button>
         <button class="btn-icon" id="btnImport" title="导入名单">📥</button>
         <button class="btn-icon" id="btnExport" title="导出名单">📤</button>
@@ -47,6 +48,12 @@
       <input type="text" id="addHandle" placeholder="输入 handle (不含@)" autocomplete="off">
       <input type="text" id="addName" placeholder="显示名称 (可选)" autocomplete="off">
       <button class="btn-add" id="btnAdd">+ 添加成员</button>
+    </div>
+
+    <!-- 离群成员操作栏 -->
+    <div class="left-members-bar" id="leftMembersBar" style="display:none">
+      <span id="leftMembersCount">0 人已离群</span>
+      <button class="btn-clean" id="btnCleanLeft">一键清除离群成员</button>
     </div>
 
     <!-- 用户列表 -->
