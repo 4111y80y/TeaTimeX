@@ -162,19 +162,42 @@
     }
   });
 
-  // 抓取群聊页面的成员列表（通过拦截 API 响应获取 handle）
+  // 抓取群聊页面的成员列表
+  // sync_interceptor.js 已在 MAIN world document_start 阶段安装了 fetch/XHR 拦截器
+  // 页面加载时的所有 API 响应中的 screen_name 已被自动收集
   async function scrapeGroupMembers() {
     function delay(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    // 从 MAIN world 读取拦截器收集的数据
+    function readCapturedUsers() {
+      return new Promise(resolve => {
+        const readScript = document.createElement('script');
+        readScript.textContent = `
+          document.dispatchEvent(new CustomEvent('teatimex_sync_result', {
+            detail: JSON.stringify(window.__teatimex_captured_users || {})
+          }));
+        `;
+        document.addEventListener('teatimex_sync_result', function handler(e) {
+          document.removeEventListener('teatimex_sync_result', handler);
+          try {
+            resolve(JSON.parse(e.detail));
+          } catch {
+            resolve({});
+          }
+        });
+        document.documentElement.appendChild(readScript);
+        readScript.remove();
+      });
+    }
+
     try {
-      // 1. 提取群聊名称 - 从页面顶部 header 获取
+      // 1. 提取群聊名称
       let groupName = '';
       const urlMatch = window.location.pathname.match(/\/i\/chat\/(g\d+)/);
       const groupId = urlMatch ? urlMatch[1] : null;
 
-      // 从 DOM 查找群聊名称（大字号 span）
       const allSpans = document.querySelectorAll('span');
       for (const span of allSpans) {
         const style = window.getComputedStyle(span);
@@ -193,94 +216,7 @@
         }
       }
 
-      // 2. 注入 fetch 拦截器到页面上下文中
-      const capturedMembers = [];
-
-      // 使用 script 标签注入到页面上下文来拦截 fetch
-      const interceptorId = 'teatimex_sync_' + Date.now();
-      window[interceptorId] = capturedMembers;
-
-      const script = document.createElement('script');
-      script.textContent = `
-        (function() {
-          const capturedData = [];
-          const origFetch = window.fetch;
-          window.fetch = async function(...args) {
-            const response = await origFetch.apply(this, args);
-            try {
-              const url = typeof args[0] === 'string' ? args[0] : (args[0] && args[0].url) || '';
-              if (url.includes('/i/api/') || url.includes('graphql')) {
-                const clone = response.clone();
-                clone.json().then(data => {
-                  // 递归搜索 screen_name 字段
-                  function findUsers(obj, depth) {
-                    if (!obj || depth > 10) return;
-                    if (typeof obj !== 'object') return;
-                    if (obj.screen_name && typeof obj.screen_name === 'string') {
-                      capturedData.push({
-                        handle: obj.screen_name,
-                        displayName: obj.name || obj.screen_name
-                      });
-                    }
-                    if (Array.isArray(obj)) {
-                      obj.forEach(item => findUsers(item, depth + 1));
-                    } else {
-                      Object.values(obj).forEach(val => findUsers(val, depth + 1));
-                    }
-                  }
-                  findUsers(data, 0);
-                  // 存到 window 供 content script 读取
-                  window['${interceptorId}'] = capturedData;
-                }).catch(() => {});
-              }
-            } catch(e) {}
-            return response;
-          };
-
-          // 同样拦截 XMLHttpRequest
-          const origXhrOpen = XMLHttpRequest.prototype.open;
-          const origXhrSend = XMLHttpRequest.prototype.send;
-          XMLHttpRequest.prototype.open = function(method, url) {
-            this._teatimexUrl = url;
-            return origXhrOpen.apply(this, arguments);
-          };
-          XMLHttpRequest.prototype.send = function() {
-            this.addEventListener('load', function() {
-              try {
-                const url = this._teatimexUrl || '';
-                if (url.includes('/i/api/') || url.includes('graphql')) {
-                  const data = JSON.parse(this.responseText);
-                  function findUsers(obj, depth) {
-                    if (!obj || depth > 10) return;
-                    if (typeof obj !== 'object') return;
-                    if (obj.screen_name && typeof obj.screen_name === 'string') {
-                      capturedData.push({
-                        handle: obj.screen_name,
-                        displayName: obj.name || obj.screen_name
-                      });
-                    }
-                    if (Array.isArray(obj)) {
-                      obj.forEach(item => findUsers(item, depth + 1));
-                    } else {
-                      Object.values(obj).forEach(val => findUsers(val, depth + 1));
-                    }
-                  }
-                  findUsers(data, 0);
-                  window['${interceptorId}'] = capturedData;
-                }
-              } catch(e) {}
-            });
-            return origXhrSend.apply(this, arguments);
-          };
-        })();
-      `;
-      document.documentElement.appendChild(script);
-      script.remove();
-
-      // 3. 等待页面初始 API 加载
-      await delay(2000);
-
-      // 4. 点击 "View All" 触发成员列表加载
+      // 2. 点击 "View All" 触发加载所有成员
       const allClickable = document.querySelectorAll('span, a, button, div[role="button"]');
       for (const el of allClickable) {
         const text = el.textContent.trim().toLowerCase();
@@ -290,18 +226,17 @@
         }
       }
 
-      // 5. 等待成员列表 API 响应
-      await delay(4000);
+      // 3. 等待成员列表加载
+      await delay(3000);
 
-      // 6. 滚动成员列表加载更多
+      // 4. 滚动成员列表加载更多（触发更多 API 请求）
       const allDivs = document.querySelectorAll('div');
       let scrollContainer = null;
       for (const div of allDivs) {
         const style = window.getComputedStyle(div);
         if ((style.overflowY === 'auto' || style.overflowY === 'scroll') && div.scrollHeight > div.clientHeight + 50) {
-          // 检查是否在模态框内
           const rect = div.getBoundingClientRect();
-          if (rect.width > 200 && rect.width < 600 && rect.height > 200) {
+          if (rect.width > 200 && rect.width < 700 && rect.height > 200) {
             scrollContainer = div;
             break;
           }
@@ -311,45 +246,23 @@
       if (scrollContainer) {
         for (let i = 0; i < 30; i++) {
           scrollContainer.scrollTop += 400;
-          await delay(600);
+          await delay(500);
         }
       }
 
-      // 7. 再等一会儿让所有 API 都返回
+      // 5. 等待所有 API 响应返回
       await delay(2000);
 
-      // 8. 从拦截的数据中读取结果
-      const readScript = document.createElement('script');
-      readScript.textContent = `
-        document.dispatchEvent(new CustomEvent('teatimex_sync_result', {
-          detail: JSON.stringify(window['${interceptorId}'] || [])
-        }));
-      `;
+      // 6. 读取拦截器收集的用户数据
+      const capturedUsers = await readCapturedUsers();
 
-      const resultPromise = new Promise(resolve => {
-        document.addEventListener('teatimex_sync_result', function handler(e) {
-          document.removeEventListener('teatimex_sync_result', handler);
-          try {
-            resolve(JSON.parse(e.detail));
-          } catch {
-            resolve([]);
-          }
-        });
-      });
-
-      document.documentElement.appendChild(readScript);
-      readScript.remove();
-
-      const apiMembers = await resultPromise;
-
-      // 去重
+      // 转为数组并去重
       const members = new Map();
-      apiMembers.forEach(m => {
-        const key = m.handle.toLowerCase();
-        if (!members.has(key)) {
-          members.set(key, { handle: m.handle, displayName: m.displayName || m.handle });
-        }
-      });
+      for (const [key, user] of Object.entries(capturedUsers)) {
+        members.set(key, { handle: user.handle, displayName: user.displayName || user.handle });
+      }
+
+      console.log(`[喝茶神器] 同步完成: 群名="${groupName}", 成员数=${members.size}`);
 
       return {
         success: true,
