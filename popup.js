@@ -51,7 +51,6 @@ const btnImport = document.getElementById('btnImport');
 const btnExport = document.getElementById('btnExport');
 const btnSync = document.getElementById('btnSync');
 const fileInput = document.getElementById('fileInput');
-const footerLink = document.getElementById('footerLink');
 const leftMembersBar = document.getElementById('leftMembersBar');
 const leftMembersCount = document.getElementById('leftMembersCount');
 const btnCleanLeft = document.getElementById('btnCleanLeft');
@@ -128,6 +127,7 @@ function renderCurrentGroup() {
         footerLink.href = '#';
         footerLink.style.visibility = 'hidden';
         btnEditGroup.style.display = 'none';
+        btnSync.style.display = 'none';
         memberList.innerHTML = `
             <div class="no-group-state">
                 <div class="no-group-icon">🍵</div>
@@ -142,15 +142,8 @@ function renderCurrentGroup() {
     headerName.textContent = group.name || '未命名群聊';
     headerSubtitle.textContent = `${group.members.length} 位成员`;
     btnEditGroup.style.display = '';
+    btnSync.style.display = '';
 
-    // 更新底部链接
-    if (group.link) {
-        footerLink.href = group.link;
-        footerLink.style.visibility = 'visible';
-    } else {
-        footerLink.href = '#';
-        footerLink.style.visibility = 'hidden';
-    }
 
     // 显示离群成员操作栏
     const leftCount = group.members.filter(m => m.left).length;
@@ -356,20 +349,20 @@ function closeGroupModal() {
 }
 
 function saveGroup() {
+    const link = groupLinkInput.value.trim();
     const name = groupNameInput.value.trim();
-    if (!name) {
-        showToast('请输入群聊名称');
-        groupNameInput.focus();
+
+    if (!editingGroupId && !link) {
+        showToast('请输入群聊链接');
+        groupLinkInput.focus();
         return;
     }
-
-    const link = groupLinkInput.value.trim();
 
     if (editingGroupId) {
         // 更新现有群聊
         const group = groups.find(g => g.id === editingGroupId);
         if (group) {
-            group.name = name;
+            if (name) group.name = name;
             group.link = link;
             group.icon = selectedLogo;
         }
@@ -377,7 +370,7 @@ function saveGroup() {
         // 创建新群聊
         const newGroup = {
             id: 'g_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-            name,
+            name: name || '新群聊',
             link,
             icon: selectedLogo,
             members: [],
@@ -386,8 +379,15 @@ function saveGroup() {
         currentGroupId = newGroup.id;
     }
 
+    const isNew = !editingGroupId;
     closeGroupModal();
-    saveGroups(() => showToast(editingGroupId ? '群聊已更新' : '群聊已创建'));
+    saveGroups(() => {
+        if (isNew) {
+            showToast('群聊已创建，请点击 🔄 同步成员');
+        } else {
+            showToast('群聊已更新');
+        }
+    });
 }
 
 function deleteGroup() {

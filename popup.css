@@ -422,23 +422,12 @@ body {
 .footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 7px 16px;
     border-top: 1px solid var(--border);
     background: var(--bg-secondary);
 }
 
-.footer-link {
-    font-size: 11px;
-    color: var(--accent);
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.footer-link:hover {
-    color: var(--accent-hover);
-    text-decoration: underline;
-}
 
 .footer-ver {
     font-size: 10px;
@@ -533,6 +522,24 @@ body {
 
 .modal-body input[type="text"]::placeholder {
     color: var(--text-secondary);
+}
+
+.label-required {
+    color: var(--danger);
+    font-weight: 700;
+}
+
+.label-optional {
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-size: 11px;
+}
+
+.field-hint {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin: 4px 0 6px 0;
+    line-height: 1.4;
 }
 
 /* Logo Preview */

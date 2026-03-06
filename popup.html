@@ -63,8 +63,7 @@
 
     <!-- 底部 -->
     <footer class="footer">
-      <a href="#" id="footerLink" target="_blank" class="footer-link">🔗 群聊链接</a>
-      <span class="footer-ver">v2.0.0</span>
+      <span class="footer-ver">喝茶神器 v2.1.0</span>
     </footer>
   </div>
 
@@ -79,10 +78,11 @@
         <button class="btn-close" id="btnCloseModal">✕</button>
       </div>
       <div class="modal-body">
-        <label>群聊名称</label>
-        <input type="text" id="groupName" placeholder="例如：❤️爱的茶馆🍵❤️" autocomplete="off">
-        <label>群聊链接</label>
+        <label>群聊链接 <span class="label-required">*</span></label>
         <input type="text" id="groupLink" placeholder="https://x.com/i/chat/..." autocomplete="off">
+        <p class="field-hint" id="linkHint">填写链接后保存，然后点击 🔄 同步按钮自动获取群聊名称和成员</p>
+        <label>群聊名称 <span class="label-optional">(同步后自动填充)</span></label>
+        <input type="text" id="groupName" placeholder="保存后同步自动获取" autocomplete="off">
         <label>选择 Logo</label>
         <div class="logo-preview">
           <span id="logoPreview" class="logo-preview-icon">🍵</span>
