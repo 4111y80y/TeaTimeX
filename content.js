@@ -35,6 +35,7 @@
           groupId: group.id,
           groupIcon: group.icon || '🍵',
           groupName: group.name || '未命名',
+          bgColor: group.bgColor || 'rgba(34, 197, 94, 0.08)',
         });
       });
     });
@@ -64,16 +65,18 @@
     // 在 Like 按钮旁注入所有群聊图标
     injectGroupIcons(tweetEl, groupInfos, handle);
 
-    // 高亮推文背景
-    tweetEl.classList.add('teatimex-highlight');
-    const bgColor = 'rgba(34, 197, 94, 0.08)';
-    const innerDiv = tweetEl.querySelector(':scope > div');
-    if (innerDiv) {
-      innerDiv.style.setProperty('background-color', bgColor, 'important');
-      const styleObserver = new MutationObserver(() => {
+    // 高亮推文背景（使用群聊分类底色）
+    const bgColor = groupInfos[0].bgColor || 'rgba(34, 197, 94, 0.08)';
+    if (bgColor !== 'none') {
+      tweetEl.classList.add('teatimex-highlight');
+      const innerDiv = tweetEl.querySelector(':scope > div');
+      if (innerDiv) {
         innerDiv.style.setProperty('background-color', bgColor, 'important');
-      });
-      styleObserver.observe(innerDiv, { attributes: true, attributeFilter: ['style'] });
+        const styleObserver = new MutationObserver(() => {
+          innerDiv.style.setProperty('background-color', bgColor, 'important');
+        });
+        styleObserver.observe(innerDiv, { attributes: true, attributeFilter: ['style'] });
+      }
     }
   }
 

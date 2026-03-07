@@ -29,10 +29,25 @@ const LOGO_OPTIONS = [
     '🌞', '🌙', '🌈', '⛅', '❄️', '🌊', '💧',
 ];
 
+// 预设底色列表
+const COLOR_OPTIONS = [
+    { name: '浅绿', value: 'rgba(34, 197, 94, 0.08)', dot: '#22c55e' },
+    { name: '浅红', value: 'rgba(239, 68, 68, 0.08)', dot: '#ef4444' },
+    { name: '浅蓝', value: 'rgba(59, 130, 246, 0.08)', dot: '#3b82f6' },
+    { name: '浅黄', value: 'rgba(234, 179, 8, 0.08)', dot: '#eab308' },
+    { name: '浅紫', value: 'rgba(168, 85, 247, 0.08)', dot: '#a855f7' },
+    { name: '浅橙', value: 'rgba(249, 115, 22, 0.08)', dot: '#f97316' },
+    { name: '浅青', value: 'rgba(6, 182, 212, 0.08)', dot: '#06b6d4' },
+    { name: '浅粉', value: 'rgba(236, 72, 153, 0.08)', dot: '#ec4899' },
+    { name: '无', value: 'none', dot: 'transparent' },
+];
+const DEFAULT_BG_COLOR = COLOR_OPTIONS[0].value;
+
 let groups = [];
 let currentGroupId = null;
 let editingGroupId = null;   // null=新建, groupId=编辑
 let selectedLogo = '🍵';
+let selectedColor = DEFAULT_BG_COLOR;
 
 // DOM 元素
 const headerIcon = document.getElementById('headerIcon');
@@ -58,6 +73,7 @@ const groupNameInput = document.getElementById('groupName');
 const groupLinkInput = document.getElementById('groupLink');
 const logoPreview = document.getElementById('logoPreview');
 const logoGrid = document.getElementById('logoGrid');
+const colorGrid = document.getElementById('colorGrid');
 const btnSaveGroup = document.getElementById('btnSaveGroup');
 const btnDeleteGroup = document.getElementById('btnDeleteGroup');
 const btnCancelModal = document.getElementById('btnCancelModal');
@@ -67,6 +83,7 @@ const btnCloseModal = document.getElementById('btnCloseModal');
 document.addEventListener('DOMContentLoaded', () => {
     loadGroups();
     initLogoGrid();
+    initColorGrid();
     bindEvents();
 });
 
@@ -288,17 +305,20 @@ function openGroupModal(groupId) {
         groupNameInput.value = group.name || '';
         groupLinkInput.value = group.link || '';
         selectedLogo = group.icon || '🍵';
+        selectedColor = group.bgColor || DEFAULT_BG_COLOR;
         btnDeleteGroup.style.display = '';
     } else {
         modalTitle.textContent = '新建群聊';
         groupNameInput.value = '';
         groupLinkInput.value = '';
         selectedLogo = '🍵';
+        selectedColor = DEFAULT_BG_COLOR;
         btnDeleteGroup.style.display = 'none';
     }
 
     logoPreview.textContent = selectedLogo;
     updateLogoSelection();
+    updateColorSelection();
     groupModal.style.display = 'flex';
 }
 
@@ -323,6 +343,7 @@ function saveGroup() {
             group.name = name;
             group.link = link;
             group.icon = selectedLogo;
+            group.bgColor = selectedColor;
         }
     } else {
         const newGroup = {
@@ -330,6 +351,7 @@ function saveGroup() {
             name,
             link,
             icon: selectedLogo,
+            bgColor: selectedColor,
             members: [],
         };
         groups.push(newGroup);
@@ -380,6 +402,29 @@ function initLogoGrid() {
 function updateLogoSelection() {
     logoGrid.querySelectorAll('.logo-option').forEach(btn => {
         btn.classList.toggle('selected', btn.dataset.logo === selectedLogo);
+    });
+}
+
+// 初始化颜色选择网格
+function initColorGrid() {
+    colorGrid.innerHTML = COLOR_OPTIONS.map(opt => {
+        const noneClass = opt.value === 'none' ? ' color-option-none' : '';
+        return `<button class="color-option${noneClass}" data-color="${opt.value}" ` +
+            `style="background:${opt.dot}" title="${opt.name}"></button>`;
+    }).join('');
+
+    colorGrid.addEventListener('click', (e) => {
+        const btn = e.target.closest('.color-option');
+        if (btn) {
+            selectedColor = btn.dataset.color;
+            updateColorSelection();
+        }
+    });
+}
+
+function updateColorSelection() {
+    colorGrid.querySelectorAll('.color-option').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.color === selectedColor);
     });
 }
 
@@ -503,6 +548,7 @@ function handleExport() {
             name: group.name,
             link: group.link || '',
             icon: group.icon || '🍵',
+            bgColor: group.bgColor || '',
             members: group.members.map(m => ({
                 handle: m.handle,
                 displayName: m.displayName || m.handle,

@@ -599,6 +599,50 @@ body {
     background: rgba(29, 155, 240, 0.15);
 }
 
+/* Color Grid */
+.color-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 4px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-sm);
+}
+
+.color-option {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.15s;
+    position: relative;
+}
+
+.color-option:hover {
+    transform: scale(1.2);
+}
+
+.color-option.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent);
+}
+
+.color-option-none {
+    background: var(--bg-secondary) !important;
+    position: relative;
+}
+
+.color-option-none::after {
+    content: '✕';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
 /* Modal Footer */
 .modal-footer {
     display: flex;
