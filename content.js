@@ -69,9 +69,18 @@
     const bgColor = groupInfos[0].bgColor || 'rgba(34, 197, 94, 0.08)';
     if (bgColor !== 'none') {
       tweetEl.classList.add('teatimex-highlight');
+      // 设置 border-left 颜色匹配底色（提高不透明度）
+      const borderColor = bgColor.replace(/[\d.]+\)$/, '0.5)');
+      tweetEl.style.setProperty('border-left-color', borderColor, 'important');
+      // 设置背景色到 article 及其嵌套 div
+      tweetEl.style.setProperty('background-color', bgColor, 'important');
+      const innerDivs = tweetEl.querySelectorAll(':scope > div, :scope > div > div, :scope > div > div > div');
+      innerDivs.forEach(div => {
+        div.style.setProperty('background-color', bgColor, 'important');
+      });
+      // 监听样式变化防止被重置
       const innerDiv = tweetEl.querySelector(':scope > div');
       if (innerDiv) {
-        innerDiv.style.setProperty('background-color', bgColor, 'important');
         const styleObserver = new MutationObserver(() => {
           innerDiv.style.setProperty('background-color', bgColor, 'important');
         });

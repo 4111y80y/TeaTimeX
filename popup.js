@@ -132,6 +132,7 @@ function renderGroupSelect() {
 // 渲染当前群聊的内容
 function renderCurrentGroup() {
     const group = getCurrentGroup();
+    const header = document.querySelector('.header');
 
     if (!group) {
         headerIcon.textContent = '🍵';
@@ -139,6 +140,7 @@ function renderCurrentGroup() {
         headerSubtitle.textContent = '点击 ＋ 创建你的第一个群聊';
         memberCount.textContent = '0 位成员';
         btnEditGroup.style.display = 'none';
+        if (header) header.style.removeProperty('background');
         memberList.innerHTML = `
             <div class="no-group-state">
                 <div class="no-group-icon">🍵</div>
@@ -152,6 +154,18 @@ function renderCurrentGroup() {
     headerName.textContent = group.name || '未命名群聊';
     headerSubtitle.textContent = `${group.members.length} 位成员`;
     btnEditGroup.style.display = '';
+
+    // 顶部区域底色跟随分类
+    if (header) {
+        const bgColor = group.bgColor || 'rgba(34, 197, 94, 0.08)';
+        if (bgColor !== 'none') {
+            // 增大不透明度让 header 底色更明显
+            const headerBg = bgColor.replace(/[\d.]+\)$/, '0.25)');
+            header.style.setProperty('background', headerBg, 'important');
+        } else {
+            header.style.removeProperty('background');
+        }
+    }
 
     renderMembers(searchInput.value);
 }
