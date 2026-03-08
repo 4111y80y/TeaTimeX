@@ -74,6 +74,7 @@ const groupLinkInput = document.getElementById('groupLink');
 const logoPreview = document.getElementById('logoPreview');
 const logoGrid = document.getElementById('logoGrid');
 const colorGrid = document.getElementById('colorGrid');
+const groupEnabled = document.getElementById('groupEnabled');
 const btnSaveGroup = document.getElementById('btnSaveGroup');
 const btnDeleteGroup = document.getElementById('btnDeleteGroup');
 const btnCancelModal = document.getElementById('btnCancelModal');
@@ -123,10 +124,13 @@ function renderGroupSelect() {
         return;
     }
 
-    groupSelect.innerHTML = groups.map(g =>
-        `<option value="${escapeHtml(g.id)}" ${g.id === currentGroupId ? 'selected' : ''}>` +
-        `${g.icon || '🍵'} ${escapeHtml(g.name || '未命名')}</option>`
-    ).join('');
+    groupSelect.innerHTML = groups.map(g => {
+        const disabled = g.enabled === false;
+        const cls = disabled ? 'class="group-option-disabled"' : '';
+        const suffix = disabled ? ' [已关闭]' : '';
+        return `<option value="${escapeHtml(g.id)}" ${g.id === currentGroupId ? 'selected' : ''} ${cls}>` +
+            `${g.icon || '🍵'} ${escapeHtml(g.name || '未命名')}${suffix}</option>`;
+    }).join('');
 }
 
 // 渲染当前群聊的内容
@@ -320,6 +324,7 @@ function openGroupModal(groupId) {
         groupLinkInput.value = group.link || '';
         selectedLogo = group.icon || '🍵';
         selectedColor = group.bgColor || DEFAULT_BG_COLOR;
+        groupEnabled.checked = group.enabled !== false;
         btnDeleteGroup.style.display = '';
     } else {
         modalTitle.textContent = '新建群聊';
@@ -327,6 +332,7 @@ function openGroupModal(groupId) {
         groupLinkInput.value = '';
         selectedLogo = '🍵';
         selectedColor = DEFAULT_BG_COLOR;
+        groupEnabled.checked = true;
         btnDeleteGroup.style.display = 'none';
     }
 
@@ -358,6 +364,7 @@ function saveGroup() {
             group.link = link;
             group.icon = selectedLogo;
             group.bgColor = selectedColor;
+            group.enabled = groupEnabled.checked;
         }
     } else {
         const newGroup = {
@@ -366,6 +373,7 @@ function saveGroup() {
             link,
             icon: selectedLogo,
             bgColor: selectedColor,
+            enabled: groupEnabled.checked,
             members: [],
         };
         groups.push(newGroup);

@@ -26,6 +26,7 @@
     handleMap = {};
     groups.forEach((group) => {
       if (!group.members) return;
+      if (group.enabled === false) return; // 跳过已关闭的分类
       group.members.forEach((m) => {
         const key = m.handle.toLowerCase();
         if (!handleMap[key]) {
